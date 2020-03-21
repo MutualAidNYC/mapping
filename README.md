@@ -18,7 +18,7 @@ https://data.cityofnewyork.us/City-Government/Neighborhood-Tabulation-Areas-NTA-
 A Reference airtable is currently being built. It is similar to the data in this table:
 https://airtable.com/shrtMLL4b6KdXuDhl
 To test mapping of projects/groups/etc, use this CSV of the above table:
-https://drive.google.com/open?id=1uu_p1_ARII5v6m-apt3EqqvPmXn68PxQ
+https://drive.google.com/open?id=1iUT_I3MkFIAiaC-dj_-Hf8Cyn8X1u6w-
 
 # Tools
 - Mapbox: what accountname?
