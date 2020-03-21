@@ -21,8 +21,8 @@ To test mapping of projects/groups/etc, use this CSV of the above table:
 https://drive.google.com/open?id=1uu_p1_ARII5v6m-apt3EqqvPmXn68PxQ
 
 # Tools
-Mapbox: what accountname?
-Tabletop: https://github.com/jsoma/tabletop
+- Mapbox: what accountname?
+- Tabletop: https://github.com/jsoma/tabletop
 
 # Longer-term vision
 - Mutual Aid US version in mapbox and perhaps to use as a template? 
