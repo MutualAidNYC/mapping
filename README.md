@@ -6,8 +6,8 @@ Build interactive mapbox map that can be embedded into the mutualaid.nyc website
 - Set boundaries for neighborhoods using NTA definitions (see data standards below)
     - For example see: https://docs.mapbox.com/mapbox-gl-js/example/data-join/ 
 - Link neighborhoods boundaries to Mutual Aid neighborhoods data that shows projects/groups in each neighborhood
-- Link fields from neighborhoods data with descriptions of project/groups
-- Store this data on mapbox. Once MutualAid NYC tables are set up and data is maintained: Airtable publishes CSV regularly (pushed via API). Mapbox Frontend reads CSV. (Tabletop is js library to read CSV easily.) Maps on mutualaid stay current.
+- Link fields from neighborhoods data with descriptions of project/groups (There needs to be a shared identifier in each row in airtable, that can be joined against an identifier in the neighborhood boundaries data set)
+- Store this data on mapbox. Once MutualAid NYC tables are set up and data is maintained: Airtable publishes CSV regularly (pushed via API). Mapbox Frontend (The front end is html/css/js that uses Mapbox gl js for map display) reads CSV. (Tabletop is js library to read CSV easily.) Maps on mutualaid stay current.
     - Alternative process: Start with using the native Airtable API to Javascript as a solution and then migrate to Airtable API syncing to custom db and mapping that.
 
 # Data standards
