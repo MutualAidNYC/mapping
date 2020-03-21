@@ -1,10 +1,28 @@
 # Mapping
+
 Code, tools and resources to support interactive maps on the mutualaid.nyc website
+
+# Getting Started
+
+Copy `.env-sample` to `.env`:
+
+```
+$ cp .env-sample .env
+```
+
+Copy your MapBox Access Token into the `.env` between the quotes, then:
+
+```
+$ npm install
+$ npm start
+```
+
+Visit `http://localhost:8000` to see the map.
 
 # Overview of what is needed
 Build interactive mapbox map that can be embedded into the mutualaid.nyc website and display projects/resources at neighborhood/street level.
 - Set boundaries for neighborhoods using NTA definitions (see data standards below)
-    - For example see: https://docs.mapbox.com/mapbox-gl-js/example/data-join/ 
+    - For example see: https://docs.mapbox.com/mapbox-gl-js/example/data-join/
 - Link neighborhoods boundaries to Mutual Aid neighborhoods data that shows projects/groups in each neighborhood
 - Link fields from neighborhoods data with descriptions of project/groups (There needs to be a shared identifier in each row in airtable, that can be joined against an identifier in the neighborhood boundaries data set)
 - Store this data on mapbox. Once MutualAid NYC tables are set up and data is maintained: Airtable publishes CSV regularly (pushed via API). Mapbox Frontend (The front end is html/css/js that uses Mapbox gl js for map display) reads CSV. (Tabletop is js library to read CSV easily.) Maps on mutualaid stay current.
@@ -25,7 +43,7 @@ https://drive.google.com/open?id=1iUT_I3MkFIAiaC-dj_-Hf8Cyn8X1u6w-
 - Tabletop: https://github.com/jsoma/tabletop
 
 # Longer-term vision
-- Mutual Aid US version in mapbox and perhaps to use as a template? 
+- Mutual Aid US version in mapbox and perhaps to use as a template?
 https://www.mutualaidhub.org/
 
 - Feature rich example of what we could get to eventually:
