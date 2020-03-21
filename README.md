@@ -7,8 +7,7 @@ Build interactive mapbox map that can be embedded into the mutualaid.nyc website
     - For example see: https://docs.mapbox.com/mapbox-gl-js/example/data-join/ 
 - Link neighborhoods boundaries to Mutual Aid neighborhoods data that shows projects/groups in each neighborhood
 - Link fields from neighborhoods data with descriptions of project/groups
-- Store this data on mapbox and set up API to ensure realtime feed as source doucmnets get updated.
-
+- Store this data on mapbox. Once MutualAid NYC tables are set up and data is maintained: Airtable publishes CSV regularly (pushed via API). Mapbox Frontend reads CSV. (Tabletop is js library to read CSV easily.) Maps on mutualaid stay current.
 
 # Data standards
 - For definitions of neighborhood boundaries:
@@ -19,6 +18,10 @@ A Reference airtable is currently being built. It is similar to the data in this
 https://airtable.com/shrtMLL4b6KdXuDhl
 To test mapping of projects/groups/etc, use this CSV of the above table:
 https://drive.google.com/open?id=1uu_p1_ARII5v6m-apt3EqqvPmXn68PxQ
+
+# Tools
+Mapbox: what accountname?
+Tabletop: https://github.com/jsoma/tabletop
 
 # Longer-term vision
 - Mutual Aid US version in mapbox and perhaps to use as a template? 
