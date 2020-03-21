@@ -20,7 +20,16 @@ $ npm start
 Visit `http://localhost:8000` to see the map.
 
 # Overview of what is needed
-Build interactive mapbox map that can be embedded into the mutualaid.nyc website and display projects/resources at neighborhood/street level.
+Build interactive mapbox map that can be embedded into the mutualaid.nyc website and display projects/resources at neighborhood/street level. That is: Display the map with the neaighborhood boundaries. When a user clicks on an area, a box would appear displaying all Neighborhood Groups in that area.
+
+![Mockup](https://https://imgur.com/gallery/58Ga80u)
+
+Replace http://mutualaid.nyc/neighborhood-groups/ with:
+Airtable Data from here: https://airtable.com/tblyc5VOdFhMPGjcI/viwztUPjFG4Eiy00Z?blocks=bip0dsjEGImDy3f9Y
+Neighborhood Tabulation Areas from here: https://data.cityofnewyork.us/City-Government/Neighborhood-Tabulation-Areas-NTA-/cpf4-rkhq
+This type of thing could do it: https://docs.mapbox.com/mapbox-gl-js/example/data-join/
+We could also use a more feature rich system. Devin can have one of his work work developers support adopting it to this use case if it’s prefered: https://github.com/soundpress/wegov_displayapp
+
 - Set boundaries for neighborhoods using NTA definitions (see data standards below)
     - For example see: https://docs.mapbox.com/mapbox-gl-js/example/data-join/
 - Link neighborhoods boundaries to Mutual Aid neighborhoods data that shows projects/groups in each neighborhood
