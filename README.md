@@ -22,7 +22,7 @@ Visit `http://localhost:8000` to see the map.
 # Overview of what is needed
 Build interactive mapbox map that can be embedded into the mutualaid.nyc website and display projects/resources at neighborhood/street level. That is: Display the map with the neaighborhood boundaries. When a user clicks on an area, a box would appear displaying all Neighborhood Groups in that area.
 
-![Mockup](https://https://imgur.com/gallery/58Ga80u)
+![Mockup](https://platformable.com/content/images/2020/03/mockup-of-map-1.png)
 
 Replace http://mutualaid.nyc/neighborhood-groups/ with:
 Airtable Data from here: https://airtable.com/tblyc5VOdFhMPGjcI/viwztUPjFG4Eiy00Z?blocks=bip0dsjEGImDy3f9Y
