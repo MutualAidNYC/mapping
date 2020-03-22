@@ -1,7 +1,6 @@
 function loadMapboxAccessToken() {
     return fetch('/mapbox-access-token')
-        .then(response => response.text())
-        .then(token => mapboxgl.accessToken = token);
+        .then(response => response.text());
 }
 
 function loadMap() {
@@ -13,39 +12,35 @@ function loadMap() {
             zoom: 13,
         });
 
-        map.on('load', function() {
+        map.on('load', () => {
             resolve(map);
         });
     });
 }
 
 function configureMap(map, geojson) {
-    const ntaCodes = geojson.features.map(feature => {
-        return feature.properties.ntacode;
-    });
-
     const code = 'nta';
     const fillColor = '#81b1e4';
     const strokeColor = '#0366d6';
 
     map.addSource(code, {
-        type: "geojson",
+        type: 'geojson',
         data: geojson,
     });
 
     map.addLayer({
-        "id": code,
-        "type": "fill",
-        "source": code,
-        "paint": {
+        id: code,
+        type: 'fill',
+        source: code,
+        paint: {
             'fill-color': fillColor,
             'fill-opacity': 0.8,
-            "fill-outline-color": strokeColor,
+            'fill-outline-color': strokeColor,
         }
     });
 }
 
-function loadData() {
+function loadNeighborhoods() {
     // GeoJSON - "Feature" Format
     //
     // {
@@ -64,16 +59,13 @@ function loadData() {
     //     "coordinates": [...]
     //   }
     // }
-    return fetch('/nta.geojson', {
-        'Content-Type': 'application/json',
-    }).then(response => response.json())
+    return fetch('/data/nta.geojson')
+        .then(response => response.json());
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadMapboxAccessToken().then(() => {
-        return Promise.all([loadMap(), loadData()]).then(results => {
-            const [map, geojson] = results;
-            configureMap(map, geojson);
-        });
-    });
+    loadMapboxAccessToken()
+        .then(token => { mapboxgl.accessToken = token; })
+        .then(() => Promise.all([loadMap(), loadNeighborhoods()]))
+        .then(([map, geojson]) => configureMap(map, geojson));
 });
