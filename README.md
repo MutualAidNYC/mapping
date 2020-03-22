@@ -1,6 +1,6 @@
 # Mapping
 
-Code, tools and resources to support interactive maps on the mutualaid.nyc website
+Code, tools and resources to support interactive maps on the mutualaid.nyc website. View demo at https://mutualaidnyc.github.io.
 
 # Getting Started
 
