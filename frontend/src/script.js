@@ -9,7 +9,7 @@ function loadMap() {
             container: 'map',
             style: 'mapbox://styles/mapbox/light-v10',
             center: [-73.97, 40.77427],
-            zoom: 13,
+            zoom: 11,
         });
 
         map.on('load', () => {
@@ -298,7 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(([groups, neighborhoods, communities, ntaGeodata]) => {
             const store = createStore(groups, neighborhoods);
             const geojson = amendNTAGeodata(ntaGeodata, store);
-            console.log(geojson);
             return geojson;
         })
         .then((geojson) => Promise.all([loadMap(), geojson]))
