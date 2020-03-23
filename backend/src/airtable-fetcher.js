@@ -1,3 +1,10 @@
+var createDOMPurify = require('dompurify');
+var JSDOM = require('jsdom').JSDOM;
+
+const DOMPurify = createDOMPurify(new JSDOM('').window)
+const sanitize = DOMPurify.sanitize;
+
+
 class AirtableFetcher {
     constructor(base) {
         this.base = base;
@@ -27,29 +34,29 @@ class AirtableFetcher {
                     // String
                     airtableId: record.id,
                     // String
-                    name: record.get('Name'),
+                    name: sanitize(record.get('Name')),
                     // String
-                    missionShort: record.get('Mission (short)'),
+                    missionShort: sanitize(record.get('Mission (short)')),
                     // String
-                    website: record.get('Website'),
+                    website: sanitize(record.get('Website')),
                     // String
-                    campaignWebsite: record.get('Link to campaign website'),
+                    campaignWebsite: sanitize(record.get('Link to campaign website')),
                     // String
-                    publicEmail: record.get('Public Email'),
+                    publicEmail: sanitize(record.get('Public Email')),
                     // String
-                    twitter: record.get('Twitter'),
+                    twitter: sanitize(record.get('Twitter')),
                     // String
-                    instagram: record.get('Instagram'),
+                    instagram: sanitize(record.get('Instagram')),
                     // Array of strings
-                    region: JSON.stringify(record.get('Borough/Region')),
+                    region: JSON.stringify((record.get('Borough/Region') || []).map(b => sanitize(b))),
                     // Array of foreign keys to "Ref - Neighborhood" table.
-                    neighborhood: JSON.stringify(record.get('Neighborhood')),
+                    neighborhood: JSON.stringify((record.get('Neighborhood') || []).map(n => sanitize(n))),
                     // Array of foreign keys to "Ref - Neighborhood" table.
-                    servicingNeighborhood: JSON.stringify(record.get('Neighborhood You Provide Service')),
+                    servicingNeighborhood: JSON.stringify((record.get('Neighborhood You Provide Service') || []).map(n => sanitize(n))),
                     // Array of foreign keys to "Ref - Most Impacted Groups" table.
-                    communitiesServed: JSON.stringify(record.get('Communities Served')),
+                    communitiesServed: JSON.stringify((record.get('Communities Served') || []).map(c => sanitize(c))),
                     // Array of foreign keys to "Ref - Most Impacted Groups" table.
-                    advocacyIssues: JSON.stringify(record.get('Advocacy Issues')),
+                    advocacyIssues: JSON.stringify((record.get('Advocacy Issues') || []).map(a => sanitize(a))),
                 }))
                 .forEach(record => groups.push(record));
 
@@ -78,19 +85,19 @@ class AirtableFetcher {
                     // String
                     airtableId: record.id,
                     // String
-                    name: record.get('Neighborhood Name'),
+                    name: sanitize(record.get('Neighborhood Name')),
                     // String
-                    ntaName: record.get('NTA Name'),
+                    ntaName: sanitize(record.get('NTA Name')),
                     // String
-                    ntaCode: record.get('NTACode'),
+                    ntaCode: sanitize(record.get('NTACode')),
                     // String
-                    state: record.get('State'),
+                    state: sanitize(record.get('State')),
                     // String
-                    address: record.get('Address'),
+                    address: sanitize(record.get('Address')),
                     // String
-                    geocode: record.get('GeoCode'),
+                    geocode: sanitize(record.get('GeoCode')),
                     // Integer
-                    countyfips: Number(record.get('CountyFIPS')),
+                    countyfips: Number(sanitize(record.get('CountyFIPS'))),
                 }))
                 .forEach(record => neighborhoods.push(record));
 
@@ -119,9 +126,9 @@ class AirtableFetcher {
                     // String
                     airtableId: record.id,
                     // String
-                    name: record.get('Name'),
+                    name: sanitize(record.get('Name')),
                     // Integer
-                    displayOrder: Number(record.get('Order')),
+                    displayOrder: Number(sanitize(record.get('Order'))),
                 }))
                 .forEach(record => communities.push(record));
 
