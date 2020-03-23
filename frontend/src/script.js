@@ -42,18 +42,10 @@ function configureMap(map, geojson) {
     // When a click event occurs on a feature in the places layer, open a popup at the
     // location of the feature, with description HTML from its properties.
     map.on('click', code, function(e) {
-        // var coordinates = e.features[0].geometry.coordinates.slice();
-        var description = e.features[0].properties.description;
-
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
-        // while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-        //     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-        // }
+        const description = e.features[0].properties.description;
 
         new mapboxgl.Popup()
-            // .setLngLat(coordinates)
+            .setMaxWidth('')
             .setLngLat(e.lngLat)
             .setHTML(description)
             .addTo(map);
