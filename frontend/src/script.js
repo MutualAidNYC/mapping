@@ -40,7 +40,7 @@ function configureMap(map, geojson) {
     });
 }
 
-function loadNeighborhoods() {
+function loadNTAGeodata() {
     // GeoJSON - "Feature" Format
     //
     // {
@@ -63,9 +63,44 @@ function loadNeighborhoods() {
         .then(response => response.json());
 }
 
+function loadGroups() {
+    return fetch('/data/groups')
+        .then(response => response.json())
+        .then(groups => groups.map(group => Object.assign({}, group, {
+            // Array of strings
+            region: JSON.parse(group.region),
+            // Array of foreign keys to "Ref - Neighborhood" table.
+            neighborhood: JSON.parse(group.neighborhood),
+            // Array of foreign keys to "Ref - Neighborhood" table.
+            servicingNeighborhood: JSON.parse(group.servicingNeighborhood),
+            // Array of foreign keys to "Ref - Most Impacted Groups" table.
+            communitiesServed: JSON.parse(group.communitiesServed),
+            // Array of foreign keys to "Ref - Most Impacted Groups" table.
+            advocacyIssues: JSON.parse(group.advocacyIssues),
+        })));
+}
+
+function loadNeighborhoods() {
+    return fetch('/data/neighborhoods')
+        .then(response => response.json());
+}
+
+function loadCommunities() {
+    return fetch('/data/communities')
+        .then(response => response.json());
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    let geojson = null;
+
     loadMapboxAccessToken()
         .then(token => { mapboxgl.accessToken = token; })
-        .then(() => Promise.all([loadMap(), loadNeighborhoods()]))
-        .then(([map, geojson]) => configureMap(map, geojson));
+        .then(() => Promise.all([loadGroups(), loadNeighborhoods(), loadCommunities(), loadNTAGeodata()]))
+        .then(([groups, neighborhoods, communities, ntaGeodata]) => {
+            geojson = ntaGeodata;
+            // const ntaCodeToGroups = neighborhoods.map
+            // const neighborhoodsByNTACode
+        })
+        .then(() => loadMap())
+        .then((map) => configureMap(map, geojson));
 });
