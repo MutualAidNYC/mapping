@@ -1,2 +1,40 @@
 body { margin: 0; padding: 0; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+
+.neighborhoodPopup {
+    margin: 0;
+    max-width: 300px;
+    max-height: 200px;
+    overflow: scroll;
+}
+
+.neighborhoodPopup__neighborhoodName {
+    margin: 0;
+    font-size: 24px;
+    line-height: 120%;
+    text-decoration: underline;
+}
+
+.neighborhoodPopup__sectionTitle {
+    margin: 0;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.neighborhoodPopup__group {
+    padding: 4px;
+    border: 1px solid #DDD;
+    margin-bottom: 5px;
+}
+
+.neighborhoodPopup__groupName {
+    margin: 5px 0;
+}
+
+.neighborhoodPopup__groupMissionShort,
+.neighborhoodPopup__groupWebsite,
+.neighborhoodPopup__groupTwitter,
+.neighborhoodPopup__groupInstagram {
+    display: block;
+}
