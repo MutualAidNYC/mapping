@@ -18,7 +18,7 @@ const CREATE_GROUPS_STATEMENT = `
         advocacyIssues TEXT
     )
 `;
-const UPSERT_GROUPS_STATEMENT = `
+const UPSERT_GROUP_STATEMENT = `
     INSERT INTO groups (
         airtableId,
         name,
@@ -76,7 +76,7 @@ const CREATE_NEIGHBORHOODS_STATEMENT = `
         countyfips INTEGER
     )
 `;
-const UPSERT_NEIGHBORHOODS_STATEMENT = `
+const UPSERT_NEIGHBORHOOD_STATEMENT = `
     INSERT INTO neighborhoods (
         airtableId,
         name,
@@ -114,7 +114,7 @@ const CREATE_COMMUNITIES_STATEMENT = `
         displayOrder INTEGER
     )
 `;
-const UPSERT_COMMUNITIES_STATEMENT = `
+const UPSERT_COMMUNITY_STATEMENT = `
     INSERT INTO communities (
         airtableId,
         name,
@@ -137,18 +137,18 @@ class Database {
         this.createTables();
 
         this.selectAllGroupsQuery = this.db.prepare('SELECT * FROM groups;');
-        this.upsertGroupsQuery = this.db.prepare(UPSERT_GROUPS_STATEMENT);
+        this.upsertGroupQuery = this.db.prepare(UPSERT_GROUP_STATEMENT);
 
         this.selectAllNeighborhoodsQuery = this.db.prepare('SELECT * FROM neighborhoods;');
-        this.upsertNeighborhoodsQuery = this.db.prepare(UPSERT_NEIGHBORHOODS_STATEMENT);
+        this.upsertNeighborhoodQuery = this.db.prepare(UPSERT_NEIGHBORHOOD_STATEMENT);
 
         this.selectAllCommunitiesQuery = this.db.prepare('SELECT * FROM communities;');
-        this.upsertCommunitiesQuery = this.db.prepare(UPSERT_COMMUNITIES_STATEMENT);
+        this.upsertCommunityQuery = this.db.prepare(UPSERT_COMMUNITY_STATEMENT);
 
         this.updateData = this.db.transaction(([groups, neighborhoods, communities]) => {
-            groups.forEach((group) => this.upsertGroupsQuery.run(group));
-            neighborhoods.forEach((neighborhood) => this.upsertNeighborhoodsQuery.run(neighborhood));
-            communities.forEach((community) => this.upsertCommunitiesQuery.run(community));
+            groups.forEach((group) => this.upsertGroupQuery.run(group));
+            neighborhoods.forEach((neighborhood) => this.upsertNeighborhoodQuery.run(neighborhood));
+            communities.forEach((community) => this.upsertCommunityQuery.run(community));
         });
     }
 
