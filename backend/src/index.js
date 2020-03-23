@@ -7,7 +7,7 @@ const AirtableFetcher = require('./airtable-fetcher');
 const Database = require('./database');
 
 
-const AIRTABLE_FETCH_INTERVAL_MINUTES = 1;
+const AIRTABLE_FETCH_INTERVAL_MINUTES = 10;
 const airtableBase = new Airtable({
     endpointUrl: 'https://api.airtable.com',
     apiKey: process.env.AIRTABLE_API_KEY,
@@ -23,7 +23,17 @@ const port = 8000;
 
 
 // Sync Airtable to Database on a timer.
-setInterval(async () => database.update(await airtableFetcher.fetch()), AIRTABLE_FETCH_INTERVAL_MINUTES * 60 * 1000);
+
+async function syncAirtableToDatabase() {
+    database.update(await airtableFetcher.fetch());
+}
+
+if (AIRTABLE_FETCH_INTERVAL_MINUTES > 0) {
+    // Perform initial fetch.
+    syncAirtableToDatabase();
+    // Kickoff fetch timer.
+    setInterval(() => syncAirtableToDatabase(), AIRTABLE_FETCH_INTERVAL_MINUTES * 60 * 1000);
+}
 
 
 // Configure and start HTTP server.
