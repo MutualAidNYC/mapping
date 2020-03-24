@@ -3,29 +3,31 @@ body { margin: 0; padding: 0; }
 
 .mapboxgl-popup {
     max-width: 80%;
-    max-height: 60%;
+    height: 60%;
 }
 
 .mapboxgl-popup-content {
+    height: 100%;
+}
+
+.neighborhoodPopup {
+    margin: 0;
+    height: 100%;
     overflow: scroll;
 }
 
 @media screen and (min-width: 768px) {
     .mapboxgl-popup {
         max-width: 60%;
-        max-height: 400px;
+        height: 400px;
     }
 }
 
 @media screen and (min-width: 900px) {
     .mapboxgl-popup {
         max-width: 40%;
-        max-height: 500px;
+        height: 500px;
     }
-}
-
-.neighborhoodPopup {
-    margin: 0;
 }
 
 .neighborhoodPopup__neighborhoodName {
