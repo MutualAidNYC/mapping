@@ -5,7 +5,7 @@ function loadMapboxAccessToken() {
 
 function loadMap() {
     return new Promise((resolve, reject) => {
-        var map = new mapboxgl.Map({
+        const map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/light-v10',
             center: [-73.97, 40.77427],
@@ -18,30 +18,78 @@ function loadMap() {
     });
 }
 
-function configureMap(map, geojson) {
-    const code = 'nta';
-    const fillColor = '#81b1e4';
-    const strokeColor = '#0366d6';
+function configureMap(map, geodata) {
+    const bordersSourceId = 'nta-borders';
+    const servicedNeighborhoodsSourceId = 'nta-serviced-neighborhoods';
+    const neighborhoodsWithLocalGroupsSourceId = 'nta-neighborhoods-with-local-groups';
+    const unservicedNeighborhoodsSourceId = 'nta-unserviced-neighborhoods';
 
-    map.addSource(code, {
+    map.addSource(bordersSourceId, {
         type: 'geojson',
-        data: geojson,
+        data: geodata.allNeighborhoods,
+    });
+
+    map.addSource(servicedNeighborhoodsSourceId, {
+        type: 'geojson',
+        data: geodata.neighborhoodsWithServicingLocalGroups,
+    });
+
+    map.addSource(neighborhoodsWithLocalGroupsSourceId, {
+        type: 'geojson',
+        data: geodata.neighborhoodsWithLocalGroups,
+    });
+
+    map.addSource(unservicedNeighborhoodsSourceId, {
+        type: 'geojson',
+        data: geodata.neighborhoodsWithoutLocalGroups,
     });
 
     map.addLayer({
-        id: code,
+        id: unservicedNeighborhoodsSourceId,
         type: 'fill',
-        source: code,
+        source: unservicedNeighborhoodsSourceId,
         paint: {
-            'fill-color': fillColor,
-            'fill-opacity': 0.8,
-            'fill-outline-color': strokeColor,
+            'fill-color': '#59A6E5',
+            'fill-opacity': 1,
         }
     });
 
-    // When a click event occurs on a feature in the places layer, open a popup at the
-    // location of the feature, with description HTML from its properties.
-    map.on('click', code, function(e) {
+    map.addLayer({
+        id: neighborhoodsWithLocalGroupsSourceId,
+        type: 'fill',
+        source: neighborhoodsWithLocalGroupsSourceId,
+        paint: {
+            'fill-color': '#A27CEF',
+            'fill-opacity': 1,
+        }
+    });
+
+    map.addLayer({
+        id: servicedNeighborhoodsSourceId,
+        type: 'fill',
+        source: servicedNeighborhoodsSourceId,
+        paint: {
+            'fill-color': '#43C59E',
+            'fill-opacity': 1,
+        }
+    });
+
+    // Neighborhood Borderlines Layer
+    map.addLayer({
+        id: bordersSourceId,
+        type: 'line',
+        source: bordersSourceId,
+        layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        paint: {
+            'line-color': 'rgba(0,0,0,0.4)',
+            'line-width': 2,
+        }
+    });
+
+    function handleClick(e) {
         const description = e.features[0].properties.description;
 
         new mapboxgl.Popup()
@@ -49,17 +97,31 @@ function configureMap(map, geojson) {
             .setLngLat(e.lngLat)
             .setHTML(description)
             .addTo(map);
-    });
+    }
 
-    // Change the cursor to a pointer when the mouse is over the places layer.
-    map.on('mouseenter', code, function() {
+    function handleMouseEnter() {
         map.getCanvas().style.cursor = 'pointer';
-    });
+    }
 
-    // Change it back to a pointer when it leaves.
-    map.on('mouseleave', code, function() {
+    function handleMouseLeave() {
         map.getCanvas().style.cursor = '';
-    });
+    }
+
+    // When a click event occurs on a feature in the layer, open a popup at the
+    // location of the feature, with description HTML from its properties.
+    map.on('click', unservicedNeighborhoodsSourceId, handleClick);
+    map.on('click', neighborhoodsWithLocalGroupsSourceId, handleClick);
+    map.on('click', servicedNeighborhoodsSourceId, handleClick);
+
+    // Change the cursor to normal when the mouse leaves the layer.
+    map.on('mouseleave', unservicedNeighborhoodsSourceId, handleMouseLeave);
+    map.on('mouseleave', neighborhoodsWithLocalGroupsSourceId, handleMouseLeave);
+    map.on('mouseleave', servicedNeighborhoodsSourceId, handleMouseLeave);
+
+    // Change the cursor to a pointer when the mouse is over the layer.
+    map.on('mouseenter', unservicedNeighborhoodsSourceId, handleMouseEnter);
+    map.on('mouseenter', neighborhoodsWithLocalGroupsSourceId, handleMouseEnter);
+    map.on('mouseenter', servicedNeighborhoodsSourceId, handleMouseEnter);
 }
 
 function loadNTAGeodata() {
@@ -213,7 +275,7 @@ function groupHtml(group) {
     `;
 }
 
-function amendNTAGeodata(ntaGeodata, store) {
+function transformNTAGeodata(ntaGeodata, store) {
     // GeoJSON - "Feature" Format
     //
     // {
@@ -232,7 +294,23 @@ function amendNTAGeodata(ntaGeodata, store) {
     //     "coordinates": [...]
     //   }
     // }
-    const features = ntaGeodata.features.map((feature) => {
+
+    const neighborhoodsWithServicingLocalGroups = {
+        type: 'FeatureCollection',
+        features: [],
+    };
+
+    const neighborhoodsWithLocalGroups = {
+        type: 'FeatureCollection',
+        features: [],
+    };
+
+    const neighborhoodsWithoutLocalGroups = {
+        type: 'FeatureCollection',
+        features: [],
+    };
+
+    const features = ntaGeodata.features.forEach((feature) => {
         const ntaCode = feature.properties.ntacode;
         const neighborhood = store.ntaCodeToNeighborhood[ntaCode];
         const groupsServicingNeighborhood = store.ntaCodeToServicingGroup[ntaCode];
@@ -240,15 +318,18 @@ function amendNTAGeodata(ntaGeodata, store) {
         const boroughGroups = store.boroughToLocatedGroup[ntaCode];
         const { nycGroups, nyGroups } = store;
 
+        const hasServicingGroups = groupsServicingNeighborhood && groupsServicingNeighborhood.length;
+        const hasLocalGroups = groupsLocatedInNeighborhood && groupsLocatedInNeighborhood.length;
+
         const html = [];
 
-        if (groupsServicingNeighborhood && groupsServicingNeighborhood.length) {
-            html.push('<h2 class="neighborhoodPopup__sectionTitle">Servicing this Neighborhood</h2>');
+        if (hasServicingGroups) {
+            html.push('<h2 class="neighborhoodPopup__sectionTitle neighborhoodPopup__sectionTitle-hasServicingGroups">Servicing this Neighborhood</h2>');
             groupsServicingNeighborhood.forEach((group) => html.push(groupHtml(group)));
         }
 
-        if (groupsLocatedInNeighborhood && groupsLocatedInNeighborhood.length) {
-            html.push('<h2 class="neighborhoodPopup__sectionTitle">Located in this Neighborhood</h2>');
+        if (hasLocalGroups) {
+            html.push('<h2 class="neighborhoodPopup__sectionTitle neighborhoodPopup__sectionTitle-hasLocalGroups">Located in this Neighborhood</h2>');
             groupsLocatedInNeighborhood.forEach((group) => html.push(groupHtml(group)));
         }
 
@@ -256,6 +337,7 @@ function amendNTAGeodata(ntaGeodata, store) {
             html.push('<h2 class="neighborhoodPopup__sectionTitle">Groups in this Borough</h2>');
             boroughGroups.forEach((group) => html.push(groupHtml(group)));
         }
+
         if (nycGroups.length) {
             html.push('<h2 class="neighborhoodPopup__sectionTitle">Groups in NYC</h2>');
             nycGroups.forEach((group) => html.push(groupHtml(group)));
@@ -276,11 +358,24 @@ function amendNTAGeodata(ntaGeodata, store) {
         const properties = Object.assign({}, feature.properties, {
             description: outerHtml,
         });
+
         feature.properties = properties;
-        return feature;
+
+        if (hasServicingGroups) {
+            neighborhoodsWithServicingLocalGroups.features.push(feature);
+        } else if (hasLocalGroups) {
+            neighborhoodsWithLocalGroups.features.push(feature);
+        } else {
+            neighborhoodsWithoutLocalGroups.features.push(feature);
+        }
     });
 
-    return Object.assign({}, ntaGeodata, {features});
+    return {
+        allNeighborhoods: ntaGeodata,
+        neighborhoodsWithLocalGroups,
+        neighborhoodsWithoutLocalGroups,
+        neighborhoodsWithServicingLocalGroups,
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -289,9 +384,9 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(() => Promise.all([loadGroups(), loadNeighborhoods(), loadCommunities(), loadNTAGeodata()]))
         .then(([groups, neighborhoods, communities, ntaGeodata]) => {
             const store = createStore(groups, neighborhoods);
-            const geojson = amendNTAGeodata(ntaGeodata, store);
-            return geojson;
+            const geodata = transformNTAGeodata(ntaGeodata, store);
+            return geodata;
         })
-        .then((geojson) => Promise.all([loadMap(), geojson]))
-        .then(([map, geojson]) => configureMap(map, geojson));
+        .then((geodata) => Promise.all([loadMap(), geodata]))
+        .then(([map, geodata]) => configureMap(map, geodata));
 });

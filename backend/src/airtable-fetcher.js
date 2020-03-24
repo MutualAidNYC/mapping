@@ -22,8 +22,7 @@ class AirtableFetcher {
         console.log('Fetching Groups from Airtable');
 
         const groupsBase = await this.base('Groups').select({
-            view: "Grid view",
-            filterByFormula: "Published = TRUE()"
+            view: "Published Groups",
         });
 
         const groups = [];
