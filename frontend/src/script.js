@@ -263,7 +263,7 @@ function groupHtml(group) {
             website = `http://${website}`;
         }
         groupName = [
-            `<a class="neighborhoodPopup__groupWebsite" href="${website}">`,
+            `<a class="neighborhoodPopup__groupWebsite" href="${website}" target="_blank">`,
                 groupName,
             '</a>'
         ].join('');
