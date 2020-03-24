@@ -12,6 +12,8 @@ function loadMap() {
             zoom: 9.9,
         });
 
+        map.addControl(new mapboxgl.NavigationControl());
+
         map.on('load', () => {
             resolve(map);
         });
