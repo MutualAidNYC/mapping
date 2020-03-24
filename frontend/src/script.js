@@ -256,23 +256,33 @@ function createStore(groups, neighborhoods) {
 }
 
 function groupHtml(group) {
+    let groupName = group.name;
+    if (group.website) {
+        let website = group.website;
+        if (group.website.indexOf('http') < 0) {
+            website = `http://${website}`;
+        }
+        groupName = [
+            `<a class="neighborhoodPopup__groupWebsite" href="${website}">`,
+                groupName,
+            '</a>'
+        ].join('');
+    }
+
     return `
         <div class="neighborhoodPopup__group">
-            <h3 class="neighborhoodPopup__groupName">${group.name}</h3>
+            <h3 class="neighborhoodPopup__groupName">${groupName}</h3>
             ${group.missionShort
-                ?  '<span class="neighborhoodPopup__groupMissionShort">' + group.missionShort + '</span>'
-                    : '' }
-            ${group.website
-                ?  '<a class="neighborhoodPopup__groupWebsite"' + 'href="' + group.website + '"' + '>' + group.website + '</a></span>'
-                    : '' }
-            ${group.twitter
-                ?  '<span class="neighborhoodPopup__groupTwitter">' + group.twitter + '</span>'
-                    : '' }
-            ${group.instagram
-                ?  '<span class="neighborhoodPopup__groupInstagram">' + group.instagram + '</span>'
-                    : '' }
+                ? `<span class="neighborhoodPopup__groupMissionShort">${group.missionShort}</span>`
+                : '' }
         </div>
     `;
+    // ${group.twitter
+    //     ? `<span class="neighborhoodPopup__groupTwitter"><a href="https://twitter.com/${group.twitter.replace(/^@/, '')}">${group.twitter}</a></span>`
+    //     : '' }
+    // ${group.instagram
+    //     ? `<span class="neighborhoodPopup__groupInstagram"><a href="https://instagram.com/${group.instagram.replace(/^@/, '')}">${group.instagram}</span>`
+    //     : '' }
 }
 
 function transformNTAGeodata(ntaGeodata, store) {
