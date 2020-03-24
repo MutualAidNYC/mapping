@@ -8,8 +8,8 @@ function loadMap() {
         const map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/light-v10',
-            center: [-73.97, 40.77427],
-            zoom: 11,
+            center: [-74.005, 40.705],
+            zoom: 9.9,
         });
 
         map.on('load', () => {
