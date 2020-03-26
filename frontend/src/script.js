@@ -199,6 +199,7 @@ function createStore(groups, neighborhoods) {
     const boroughToLocatedGroup = {};
     const nycGroups = [];
     const nyGroups = [];
+    const nationalGroups = [];
 
     groups.forEach(group => {
         const servicingNeighborhoods = group.servicingNeighborhood;
@@ -233,6 +234,8 @@ function createStore(groups, neighborhoods) {
                     nycGroups.push(group);
                 } else if (region === 'Statewide') {
                     nyGroups.push(group);
+                } else if (region === 'National') {
+                    nationalGroups.push(group);
                 } else {
                     if (boroughToLocatedGroup[region] != null) {
                         boroughToLocatedGroup[region].push(group);
@@ -252,6 +255,7 @@ function createStore(groups, neighborhoods) {
         boroughToLocatedGroup,
         nycGroups,
         nyGroups,
+        nationalGroups,
     };
 
     return store;
@@ -328,7 +332,7 @@ function transformNTAGeodata(ntaGeodata, store) {
         const groupsServicingNeighborhood = store.ntaCodeToServicingGroup[ntaCode];
         const groupsLocatedInNeighborhood = store.ntaCodeToLocatedGroup[ntaCode];
         const boroughGroups = store.boroughToLocatedGroup[ntaCode];
-        const { nycGroups, nyGroups } = store;
+        const { nycGroups, nyGroups, nationalGroups } = store;
 
         const hasServicingGroups = groupsServicingNeighborhood && groupsServicingNeighborhood.length;
         const hasLocalGroups = groupsLocatedInNeighborhood && groupsLocatedInNeighborhood.length;
@@ -358,6 +362,11 @@ function transformNTAGeodata(ntaGeodata, store) {
         if (nyGroups.length) {
             html.push('<h2 class="neighborhoodPopup__sectionTitle">Groups in NY State</h2>');
             nyGroups.forEach((group) => html.push(groupHtml(group)));
+        }
+
+        if (nationalGroups.length) {
+            html.push('<h2 class="neighborhoodPopup__sectionTitle">National Groups</h2>');
+            nationalGroups.forEach((group) => html.push(groupHtml(group)));
         }
 
         const outerHtml = `
