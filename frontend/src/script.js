@@ -230,9 +230,9 @@ function createStore(groups, neighborhoods) {
             });
         } else if (Array.isArray(regions) && regions.length) {
             regions.forEach((region) => {
-                if (region === 'Citywide') {
+                if (region === 'New York City') {
                     nycGroups.push(group);
-                } else if (region === 'Statewide') {
+                } else if (region === 'New York State') {
                     nyGroups.push(group);
                 } else if (region === 'National') {
                     nationalGroups.push(group);
