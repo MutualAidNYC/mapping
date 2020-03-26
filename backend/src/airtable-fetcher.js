@@ -48,13 +48,13 @@ class AirtableFetcher {
                     instagram: sanitize(record.get('Instagram')),
                     // Array of strings
                     region: JSON.stringify((record.get('Borough/Region') || []).map(b => sanitize(b))),
-                    // Array of foreign keys to "Ref - Neighborhood" table.
+                    // Array of foreign keys to "Ref - Neighborhoods" table.
                     neighborhood: JSON.stringify((record.get('Neighborhood') || []).map(n => sanitize(n))),
-                    // Array of foreign keys to "Ref - Neighborhood" table.
+                    // Array of foreign keys to "Ref - Neighborhoods" table.
                     servicingNeighborhood: JSON.stringify((record.get('Neighborhood You Provide Service') || []).map(n => sanitize(n))),
-                    // Array of foreign keys to "Ref - Most Impacted Groups" table.
+                    // Array of foreign keys to "Ref - Communities Focus" table.
                     communitiesServed: JSON.stringify((record.get('Communities Served') || []).map(c => sanitize(c))),
-                    // Array of foreign keys to "Ref - Most Impacted Groups" table.
+                    // Array of foreign keys to "Ref - Communities Focus" table.
                     advocacyIssues: JSON.stringify((record.get('Advocacy Issues') || []).map(a => sanitize(a))),
                 }))
                 .forEach(record => groups.push(record));
@@ -113,7 +113,7 @@ class AirtableFetcher {
     async fetchCommunities() {
         console.log('Fetching Communities from Airtable');
 
-        const communitiesBase = await this.base('Ref - Most Impacted Groups').select({
+        const communitiesBase = await this.base('Ref - Communities Focus').select({
             view: "Grid view"
         });
 
