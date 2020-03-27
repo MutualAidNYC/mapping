@@ -33,21 +33,19 @@ class AirtableFetcher {
                     // String
                     airtableId: record.id,
                     // String
-                    name: sanitize(record.get('Name')),
+                    name: sanitize(record.get('Group Name')),
                     // String
-                    missionShort: sanitize(record.get('Mission (short)')),
+                    missionShort: sanitize(record.get('Short Description')),
                     // String
                     website: sanitize(record.get('Website')),
                     // String
                     campaignWebsite: sanitize(record.get('Link to campaign website')),
                     // String
-                    publicEmail: sanitize(record.get('Public Email')),
-                    // String
                     twitter: sanitize(record.get('Twitter')),
                     // String
                     instagram: sanitize(record.get('Instagram')),
                     // Array of strings
-                    region: JSON.stringify((record.get('Borough/Region') || []).map(b => sanitize(b))),
+                    region: JSON.stringify((record.get('Geographical Scope') || []).map(b => sanitize(b))),
                     // Array of foreign keys to "Ref - Neighborhoods" table.
                     neighborhood: JSON.stringify((record.get('Neighborhood') || []).map(n => sanitize(n))),
                     // Array of foreign keys to "Ref - Neighborhoods" table.
@@ -113,7 +111,7 @@ class AirtableFetcher {
     async fetchCommunities() {
         console.log('Fetching Communities from Airtable');
 
-        const communitiesBase = await this.base('Ref - Communities Focus').select({
+        const communitiesBase = await this.base('Ref - Communities').select({
             view: "Grid view"
         });
 
