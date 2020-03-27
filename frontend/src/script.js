@@ -375,15 +375,18 @@ function transformNTAGeodata(ntaGeodata, store) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadMapboxAccessToken()
-        .then(token => { mapboxgl.accessToken = token; })
-        .then(() => Promise.all([loadGroups(), loadNeighborhoods(), loadCommunities(), loadNTAGeodata()]))
-        .then(([groups, neighborhoods, communities, ntaGeodata]) => {
+function loadGeodata() {
+    return Promise.all([loadGroups(), loadNeighborhoods(), loadNTAGeodata()])
+        .then(([groups, neighborhoods, ntaGeodata]) => {
             const store = createStore(groups, neighborhoods);
             const geodata = transformNTAGeodata(ntaGeodata, store);
             return geodata;
-        })
-        .then((geodata) => Promise.all([loadMap(), geodata]))
+        });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadMapboxAccessToken()
+        .then(token => { mapboxgl.accessToken = token; })
+        .then((geodata) => Promise.all([loadMap(), loadGeodata()]))
         .then(([map, geodata]) => configureMap(map, geodata));
 });
