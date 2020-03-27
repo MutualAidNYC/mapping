@@ -11,7 +11,6 @@ const CREATE_GROUPS_STATEMENT = `
         twitter TEXT,
         instagram TEXT,
         region TEXT,
-        neighborhood TEXT,
         servicingNeighborhood TEXT,
         communitiesServed TEXT,
         advocacyIssues TEXT
@@ -27,7 +26,6 @@ const UPSERT_GROUP_STATEMENT = `
         twitter,
         instagram,
         region,
-        neighborhood,
         servicingNeighborhood,
         communitiesServed,
         advocacyIssues
@@ -40,7 +38,6 @@ const UPSERT_GROUP_STATEMENT = `
         @twitter,
         @instagram,
         @region,
-        @neighborhood,
         @servicingNeighborhood,
         @communitiesServed,
         @advocacyIssues
@@ -53,7 +50,6 @@ const UPSERT_GROUP_STATEMENT = `
         twitter=excluded.twitter,
         instagram=excluded.instagram,
         region=excluded.region,
-        neighborhood=excluded.neighborhood,
         servicingNeighborhood=excluded.servicingNeighborhood,
         communitiesServed=excluded.communitiesServed,
         advocacyIssues=excluded.advocacyIssues
