@@ -387,6 +387,6 @@ function loadGeodata() {
 document.addEventListener('DOMContentLoaded', () => {
     loadMapboxAccessToken()
         .then(token => { mapboxgl.accessToken = token; })
-        .then((geodata) => Promise.all([loadMap(), loadGeodata()]))
+        .then(() => Promise.all([loadMap(), loadGeodata()]))
         .then(([map, geodata]) => configureMap(map, geodata));
 });
