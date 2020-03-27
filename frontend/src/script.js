@@ -10,6 +10,7 @@ function loadMap() {
             style: 'mapbox://styles/mapbox/light-v10',
             center: [-74.005, 40.705],
             zoom: 9.9,
+            scrollZoom: false,
         });
 
         map.addControl(new mapboxgl.NavigationControl());
