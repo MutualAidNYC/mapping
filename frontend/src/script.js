@@ -157,8 +157,6 @@ function loadGroups() {
             // Array of strings
             region: JSON.parse(group.region),
             // Array of foreign keys to "Ref - Neighborhood" table.
-            neighborhood: JSON.parse(group.neighborhood),
-            // Array of foreign keys to "Ref - Neighborhood" table.
             servicingNeighborhood: JSON.parse(group.servicingNeighborhood),
             // Array of foreign keys to "Ref - Most Impacted Groups" table.
             communitiesServed: JSON.parse(group.communitiesServed),
@@ -196,7 +194,6 @@ function createStore(groups, neighborhoods) {
     }, {});
 
     const ntaCodeToServicingGroup = {};
-    const ntaCodeToLocatedGroup = {};
     const boroughToLocatedGroup = {};
     const nycGroups = [];
     const nyGroups = [];
@@ -204,7 +201,6 @@ function createStore(groups, neighborhoods) {
 
     groups.forEach(group => {
         const servicingNeighborhoods = group.servicingNeighborhood;
-        const locatedNeighborhoods = group.neighborhood;
         const regions = group.region;
 
         if (Array.isArray(servicingNeighborhoods) && servicingNeighborhoods.length) {
@@ -216,17 +212,6 @@ function createStore(groups, neighborhoods) {
                     ntaCodeToServicingGroup[ntaCode].push(group);
                 } else {
                     ntaCodeToServicingGroup[ntaCode] = [group];
-                }
-            });
-        } else if (Array.isArray(locatedNeighborhoods) && locatedNeighborhoods.length) {
-            locatedNeighborhoods.forEach((neighborhoodId) => {
-                const neighborhood = idToNeighborHood[neighborhoodId];
-                const ntaCode = neighborhood.ntaCode;
-
-                if (ntaCodeToLocatedGroup[ntaCode] != null) {
-                    ntaCodeToLocatedGroup[ntaCode].push(group);
-                } else {
-                    ntaCodeToLocatedGroup[ntaCode] = [group];
                 }
             });
         } else if (Array.isArray(regions) && regions.length) {
@@ -252,7 +237,6 @@ function createStore(groups, neighborhoods) {
         idToNeighborHood,
         ntaCodeToNeighborhood,
         ntaCodeToServicingGroup,
-        ntaCodeToLocatedGroup,
         boroughToLocatedGroup,
         nycGroups,
         nyGroups,
@@ -331,23 +315,16 @@ function transformNTAGeodata(ntaGeodata, store) {
         const ntaCode = feature.properties.ntacode;
         const neighborhood = store.ntaCodeToNeighborhood[ntaCode];
         const groupsServicingNeighborhood = store.ntaCodeToServicingGroup[ntaCode];
-        const groupsLocatedInNeighborhood = store.ntaCodeToLocatedGroup[ntaCode];
         const boroughGroups = store.boroughToLocatedGroup[ntaCode];
         const { nycGroups, nyGroups, nationalGroups } = store;
 
         const hasServicingGroups = groupsServicingNeighborhood && groupsServicingNeighborhood.length;
-        const hasLocalGroups = groupsLocatedInNeighborhood && groupsLocatedInNeighborhood.length;
 
         const html = [];
 
         if (hasServicingGroups) {
             html.push('<h2 class="neighborhoodPopup__sectionTitle neighborhoodPopup__sectionTitle-hasServicingGroups">Servicing this Neighborhood</h2>');
             groupsServicingNeighborhood.forEach((group) => html.push(groupHtml(group)));
-        }
-
-        if (hasLocalGroups) {
-            html.push('<h2 class="neighborhoodPopup__sectionTitle neighborhoodPopup__sectionTitle-hasLocalGroups">Located in this Neighborhood</h2>');
-            groupsLocatedInNeighborhood.forEach((group) => html.push(groupHtml(group)));
         }
 
         if (boroughGroups && boroughGroups.length) {
@@ -385,8 +362,6 @@ function transformNTAGeodata(ntaGeodata, store) {
 
         if (hasServicingGroups) {
             neighborhoodsWithServicingLocalGroups.features.push(feature);
-        } else if (hasLocalGroups) {
-            neighborhoodsWithLocalGroups.features.push(feature);
         } else {
             neighborhoodsWithoutLocalGroups.features.push(feature);
         }

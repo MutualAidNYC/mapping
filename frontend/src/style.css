@@ -41,15 +41,12 @@ body { margin: 0; padding: 0; }
     margin-top: 15px;
     margin-bottom: 10px;
     font-size: 20px;
-    color: #59A6E5;
-}
-
-.neighborhoodPopup__sectionTitle-hasLocalGroups {
-    color: #A27CEF;
+    color: #59A6E5; /* blue */
+    /* color: #A27CEF; purple */
 }
 
 .neighborhoodPopup__sectionTitle-hasServicingGroups {
-    color: #43C59E;
+    color: #43C59E; /* green */
 }
 
 .neighborhoodPopup__group {
