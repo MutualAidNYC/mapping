@@ -47,6 +47,8 @@ class AirtableFetcher {
                     // Array of strings
                     region: JSON.stringify((record.get('Geographical Scope') || []).map(b => sanitize(b))),
                     // Array of foreign keys to "Ref - Neighborhoods" table.
+                    neighborhood: JSON.stringify((record.get('Neighborhood') || []).map(n => sanitize(n))),
+                    // Array of foreign keys to "Ref - Neighborhoods" table.
                     servicingNeighborhood: JSON.stringify((record.get('Neighborhood You Provide Service') || []).map(n => sanitize(n))),
                     // Array of foreign keys to "Ref - Communities Focus" table.
                     communitiesServed: JSON.stringify((record.get('Communities Served') || []).map(c => sanitize(c))),
