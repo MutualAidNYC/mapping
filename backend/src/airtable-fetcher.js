@@ -93,6 +93,8 @@ class AirtableFetcher {
                     geocode: sanitize(record.get('GeoCode')),
                     // Integer
                     countyfips: Number(sanitize(record.get('CountyFIPS'))),
+                    // Boolean
+                    hide: Number(!!record.get('Hide')),
                 }))
                 .forEach(record => neighborhoods.push(record));
 

@@ -298,6 +298,11 @@ function transformNTAGeodata(ntaGeodata, store) {
     //   }
     // }
 
+    const allNeighborhoods = {
+        type: 'FeatureCollection',
+        features: [],
+    };
+
     const neighborhoodsWithServicingLocalGroups = {
         type: 'FeatureCollection',
         features: [],
@@ -316,6 +321,11 @@ function transformNTAGeodata(ntaGeodata, store) {
     const features = ntaGeodata.features.forEach((feature) => {
         const ntaCode = feature.properties.ntacode;
         const neighborhood = store.ntaCodeToNeighborhood[ntaCode];
+
+        if (neighborhood.hide) {
+            return;
+        }
+
         const groupsServicingNeighborhood = store.ntaCodeToServicingGroup[ntaCode];
         const boroughGroups = store.boroughToLocatedGroup[ntaCode];
         const { nycGroups, nyGroups, nationalGroups } = store;
@@ -367,10 +377,12 @@ function transformNTAGeodata(ntaGeodata, store) {
         } else {
             neighborhoodsWithoutLocalGroups.features.push(feature);
         }
+
+        allNeighborhoods.features.push(feature);
     });
 
     return {
-        allNeighborhoods: ntaGeodata,
+        allNeighborhoods,
         neighborhoodsWithLocalGroups,
         neighborhoodsWithoutLocalGroups,
         neighborhoodsWithServicingLocalGroups,

@@ -65,7 +65,8 @@ const CREATE_NEIGHBORHOODS_STATEMENT = `
         state TEXT,
         address TEXT,
         geocode TEXT,
-        countyfips INTEGER
+        countyfips INTEGER,
+        hide INTEGER
     )
 `;
 const UPSERT_NEIGHBORHOOD_STATEMENT = `
@@ -77,7 +78,8 @@ const UPSERT_NEIGHBORHOOD_STATEMENT = `
         state,
         address,
         geocode,
-        countyfips
+        countyfips,
+        hide
     ) VALUES (
         @airtableId,
         @name,
@@ -86,7 +88,8 @@ const UPSERT_NEIGHBORHOOD_STATEMENT = `
         @state,
         @address,
         @geocode,
-        @countyfips
+        @countyfips,
+        @hide
     )
     ON CONFLICT(airtableId) DO UPDATE SET
         name=excluded.name,
@@ -95,7 +98,8 @@ const UPSERT_NEIGHBORHOOD_STATEMENT = `
         state=excluded.state,
         address=excluded.address,
         geocode=excluded.geocode,
-        countyfips=excluded.countyfips
+        countyfips=excluded.countyfips,
+        hide=excluded.hide
     ;
 `
 
