@@ -47,13 +47,15 @@ function configureMap(map, geodata) {
         data: geodata.neighborhoodsWithoutLocalGroups,
     });
 
+    const fillOpacity = window.FILL_OPACITY || 1;
+
     map.addLayer({
         id: unservicedNeighborhoodsSourceId,
         type: 'fill',
         source: unservicedNeighborhoodsSourceId,
         paint: {
             'fill-color': '#59A6E5',
-            'fill-opacity': 1,
+            'fill-opacity': fillOpacity,
         }
     });
 
@@ -63,7 +65,7 @@ function configureMap(map, geodata) {
         source: neighborhoodsWithLocalGroupsSourceId,
         paint: {
             'fill-color': '#A27CEF',
-            'fill-opacity': 1,
+            'fill-opacity': fillOpacity,
         }
     });
 
@@ -73,7 +75,7 @@ function configureMap(map, geodata) {
         source: servicedNeighborhoodsSourceId,
         paint: {
             'fill-color': '#43C59E',
-            'fill-opacity': 1,
+            'fill-opacity': fillOpacity,
         }
     });
 
