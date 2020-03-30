@@ -90,6 +90,8 @@ class AirtableFetcher {
                     // String
                     ntaCode: sanitize(record.get('NTACode')),
                     // String
+                    boroName: sanitize(record.get('BoroName')),
+                    // String
                     state: sanitize(record.get('State')),
                     // String
                     address: sanitize(record.get('Address')),

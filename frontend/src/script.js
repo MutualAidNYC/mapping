@@ -340,7 +340,10 @@ function transformNTAGeodata(ntaGeodata, store) {
     };
 
     const features = ntaGeodata.features.forEach((feature) => {
-        const ntaCode = feature.properties.ntacode;
+        const {
+            ntacode: ntaCode,
+            boro_name: boroName
+        } = feature.properties;
         const neighborhood = store.ntaCodeToNeighborhood[ntaCode];
 
         if (neighborhood.hide) {
@@ -348,7 +351,7 @@ function transformNTAGeodata(ntaGeodata, store) {
         }
 
         const groupsServicingNeighborhood = store.ntaCodeToServicingGroup[ntaCode];
-        const boroughGroups = store.boroughToLocatedGroup[ntaCode];
+        const boroughGroups = store.boroughToLocatedGroup[boroName];
         const { nycGroups, nyGroups, nationalGroups } = store;
 
         const hasServicingGroups = groupsServicingNeighborhood && groupsServicingNeighborhood.length;
