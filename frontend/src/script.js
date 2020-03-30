@@ -178,12 +178,13 @@ function loadCommunities() {
 }
 
 function createStore(groups, neighborhoods) {
-    // break down group list on click into
+    // Support breaking down group list into:
     //
-    // Servicing this Neighborhood
-    // Located in this Neighborhood
-    // Servicing this Borough
-    // Servicing all of NYC
+    // Groups in this Neighborhood
+    // Groups in this Borough
+    // Groups in NYC
+    // Groups in New York State
+    // National Groups
 
     const idToNeighborHood = neighborhoods.reduce((obj, neighborhood) => {
         obj[neighborhood.airtableId] = neighborhood;
@@ -359,7 +360,7 @@ function transformNTAGeodata(ntaGeodata, store) {
         const html = [];
 
         if (hasServicingGroups) {
-            html.push('<h2 class="neighborhoodPopup__sectionTitle neighborhoodPopup__sectionTitle-hasServicingGroups">Servicing this Neighborhood</h2>');
+            html.push('<h2 class="neighborhoodPopup__sectionTitle neighborhoodPopup__sectionTitle-hasServicingGroups">Groups in this Neighborhood</h2>');
             groupsServicingNeighborhood.forEach((group) => html.push(groupHtml(group)));
         }
 
@@ -374,7 +375,7 @@ function transformNTAGeodata(ntaGeodata, store) {
         }
 
         if (nyGroups.length) {
-            html.push('<h2 class="neighborhoodPopup__sectionTitle">Groups in NY State</h2>');
+            html.push('<h2 class="neighborhoodPopup__sectionTitle">Groups in New York State</h2>');
             nyGroups.forEach((group) => html.push(groupHtml(group)));
         }
 
