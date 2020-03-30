@@ -249,25 +249,46 @@ function createStore(groups, neighborhoods) {
 }
 
 function groupHtml(group) {
-    let groupName = group.name;
-    if (group.website) {
-        let website = group.website;
-        if (group.website.indexOf('http') < 0) {
-            website = `http://${website}`;
+    const {
+        name,
+        missionShort: description,
+        website,
+        groupPhone: phone,
+        groupEmail: email,
+    } = group;
+
+    let nameHtml = name;
+    if (website) {
+        let websiteHref = group.website;
+        if (website.indexOf('http') < 0) {
+            websiteHref = `http://${website}`;
         }
-        groupName = [
-            `<a class="neighborhoodPopup__groupWebsite" href="${website}" target="_blank">`,
-                groupName,
+        nameHtml = [
+            `<a class="neighborhoodPopup__groupWebsite" href="${websiteHref}" target="_blank">`,
+                name,
             '</a>'
         ].join('');
     }
 
+    let phoneHref = phone.replace(/[()-\s.]/g, '');
+    if (phone.indexOf('+') !== 0) {
+        if (phone.indexOf('1') === 0) {
+            phoneHref = `+${phoneHref}`;
+        } else {
+            phoneHref = `+1${phoneHref}`;
+        }
+    }
+
+    const descriptionHtml = description ? `<span class="neighborhoodPopup__groupDescription">${description}</span>` : '';
+    const emailHtml = email ? `<span class="neighborhoodPopup__groupEmail">${email}</span>` : '';
+    const phoneHtml = phone ? `<a href="tel:${phoneHref}" class="neighborhoodPopup__groupPhone">${phone}</a>` : '';
+
     return `
         <div class="neighborhoodPopup__group">
-            <h3 class="neighborhoodPopup__groupName">${groupName}</h3>
-            ${group.missionShort
-                ? `<span class="neighborhoodPopup__groupMissionShort">${group.missionShort}</span>`
-                : '' }
+            <h3 class="neighborhoodPopup__groupName">${nameHtml}</h3>
+            ${descriptionHtml}
+            ${emailHtml}
+            ${phoneHtml}
         </div>
     `;
     // ${group.twitter

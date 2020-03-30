@@ -41,6 +41,10 @@ class AirtableFetcher {
                     // String
                     campaignWebsite: sanitize(record.get('Link to campaign website')),
                     // String
+                    groupPhone: sanitize(record.get('Group Phone') || '').trim(),
+                    // String
+                    groupEmail: sanitize(record.get('Group Email') || '').trim(),
+                    // String
                     twitter: sanitize(record.get('Twitter')),
                     // String
                     instagram: sanitize(record.get('Instagram')),
