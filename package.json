@@ -4,7 +4,7 @@
   "description": "Code, tools and resources to support interactive maps on the mutualaid.nyc website",
   "main": "script.js",
   "scripts": {
-    "start": "node ./backend/src/index.js",
+    "start": "node ./backend/index.js",
     "build": "webpack"
   },
   "repository": {
