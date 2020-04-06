@@ -1,5 +1,5 @@
-var createDOMPurify = require('dompurify');
-var JSDOM = require('jsdom').JSDOM;
+import createDOMPurify from 'dompurify';
+import { JSDOM } from 'jsdom';
 
 const DOMPurify = createDOMPurify(new JSDOM('').window)
 const sanitize = DOMPurify.sanitize;

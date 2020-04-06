@@ -1,15 +1,17 @@
-const path = require('path');
-const express = require('express');
-const Airtable = require('airtable');
-const webpack = require('webpack');
-const webpackDevMiddleware = require('webpack-dev-middleware');
-const webpackHotMiddleware = require('webpack-hot-middleware');
+import path from 'path';
+import express from 'express';
+import Airtable from 'airtable';
+import webpack from 'webpack';
+import webpackDevMiddleware from 'webpack-dev-middleware';
+import webpackHotMiddleware from 'webpack-hot-middleware';
+
+import AirtableFetcher from './airtable-fetcher';
+import Database from './database';
+
+import webpackAssets from '../dist/webpack-assets';
+import renderHtml from './renderHtml';
 
 const isDev = process.env.NODE_ENV === 'development';
-
-const AirtableFetcher = require('./airtable-fetcher');
-const Database = require('./database');
-
 
 const AIRTABLE_FETCH_INTERVAL_MINUTES = 10;
 const airtableBase = new Airtable({
@@ -21,9 +23,6 @@ const airtableFetcher = new AirtableFetcher(airtableBase);
 
 const DATABASE_PATH = path.resolve(__dirname, 'database.sqlite');
 const database = new Database(DATABASE_PATH);
-
-import webpackAssets from '../dist/webpack-assets';
-import renderHtml from './renderHtml';
 
 const app = express();
 const port = 8000;
@@ -37,7 +36,7 @@ if (isDev) {
     const config = require('../tools/webpack/config.js');
     const compiler = webpack(config);
     app.use(webpackDevMiddleware(compiler, {
-      publicPath: config.output.publicPath,
+        publicPath: config.output.publicPath,
     }));
     // Add Webpack HRM (Hot Module Replacement) middleware.
     // This provides an easy way to hot reload CSS changes in dev.
