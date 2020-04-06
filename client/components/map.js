@@ -10,7 +10,7 @@ function loadMapboxAccessToken() {
 }
 
 function loadMap(container) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const map = new Map({
             container,
             style: 'mapbox://styles/mapbox/light-v10',

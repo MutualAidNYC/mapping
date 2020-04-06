@@ -53,11 +53,6 @@ function loadNeighborhoods() {
         .then(response => response.json());
 }
 
-function loadCommunities() {
-    return fetch('/data/communities')
-        .then(response => response.json());
-}
-
 function transformNTAGeodata(ntaGeodata, store) {
     // GeoJSON - "Feature" Format
     //
@@ -98,7 +93,7 @@ function transformNTAGeodata(ntaGeodata, store) {
         features: [],
     };
 
-    const features = ntaGeodata.features.forEach((feature) => {
+    ntaGeodata.features.forEach((feature) => {
         const {
             ntacode: ntaCode,
             boro_name: boroName

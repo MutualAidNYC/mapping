@@ -4,7 +4,6 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const ExtractCssChunks = require('extract-css-chunks-webpack-plugin');
 
-const nodeEnv = process.env.NODE_ENV || 'development';
 const isDev = process.env.NODE_ENV === 'development';
 
 // Setup the plugins for development/production.
