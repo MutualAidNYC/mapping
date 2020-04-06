@@ -16,10 +16,11 @@ Copy the necessary values (surrounded by double quotes) into `.env`, including:
 * `AIRTABLE_API_KEY`: Your own personal Airtable API key.
 * `AIRTABLE_API_BASE`: The string representing the ID of the "MANYC Groups" Airtable Base. Found by navigating to the Base in Airtable, then "HELP → API documentation".
 
-Once the `.env` values are in place, install the npm packages and start the development server:
+Once the `.env` values are in place, install the npm packages, build the project, and start the development server:
 
 ```
 $ npm install
+$ npm run build
 $ npm run dev
 ```
 
