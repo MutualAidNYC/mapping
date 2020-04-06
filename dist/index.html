@@ -9,10 +9,6 @@
     </head>
     <body>
         <div id="map"></div>
-        <script>
-            const params = new URLSearchParams(document.location.search.substring(1));
-            window.FILL_OPACITY = Number(params.get('opacity') || 1);
-        </script>
         <script src="main.bundle.js"></script>
     </body>
 </html>

@@ -426,6 +426,8 @@ function loadGeodata() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(document.location.search.substring(1));
+    window.FILL_OPACITY = Number(params.get('opacity') || 1);
     loadMapboxAccessToken()
         .then(token => { mapboxgl.accessToken = token; })
         .then(() => Promise.all([loadMap(), loadGeodata()]))
