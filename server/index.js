@@ -5,6 +5,7 @@ const express = require('express');
 const Airtable = require('airtable');
 const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
+const webpackHotMiddleware = require('webpack-hot-middleware');
 
 const AirtableFetcher = require('./airtable-fetcher');
 const Database = require('./database');
@@ -26,6 +27,7 @@ const port = 8000;
 
 
 // Configure the HTTP server.
+
 if (process.env.NODE_ENV === 'development') {
     // Tell express to use the webpack-dev-middleware and use the webpack.config.js
     // configuration file as a base.
@@ -34,6 +36,9 @@ if (process.env.NODE_ENV === 'development') {
     app.use(webpackDevMiddleware(compiler, {
       publicPath: config.output.publicPath,
     }));
+    // Add Webpack HRM (Hot Module Replacement) middleware.
+    // This provides an easy way to hot reload CSS changes in dev.
+    app.use(webpackHotMiddleware(compiler));
 }
 
 // Serve static files.

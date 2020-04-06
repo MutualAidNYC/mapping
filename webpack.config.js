@@ -1,7 +1,17 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
-  entry: './client/index.js',
+  mode: 'production',
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+  ],
+  entry: [
+    // Allow for hot reloading CSS changes.
+    'webpack-hot-middleware/client',
+    // Our client JS entrypoint.
+    './client/index.js'
+  ],
   output: {
     filename: 'main.bundle.js',
     path: path.resolve(__dirname, 'dist'),
