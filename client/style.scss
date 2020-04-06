@@ -3,19 +3,29 @@ body {
     padding: 0;
 }
 
-#map {
+:global(#map) {
     position: absolute;
     top: 100px;
     bottom: 0;
     width: 100%;
 }
 
-.mapboxgl-popup {
+:global(.mapboxgl-popup) {
     max-width: 80%;
     height: 60%;
+
+    @media screen and (min-width: 768px) {
+        max-width: 60%;
+        height: 400px;
+    }
+
+    @media screen and (min-width: 900px) {
+        max-width: 40%;
+        height: 500px;
+    }
 }
 
-.mapboxgl-popup-content {
+:global(.mapboxgl-popup-content) {
     height: 100%;
 }
 
@@ -23,20 +33,6 @@ body {
     margin: 0;
     height: 100%;
     overflow: scroll;
-}
-
-@media screen and (min-width: 768px) {
-    .mapboxgl-popup {
-        max-width: 60%;
-        height: 400px;
-    }
-}
-
-@media screen and (min-width: 900px) {
-    .mapboxgl-popup {
-        max-width: 40%;
-        height: 500px;
-    }
 }
 
 .neighborhoodPopup__neighborhoodName {

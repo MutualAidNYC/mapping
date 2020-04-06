@@ -1,4 +1,4 @@
-import './style.css';
+import style from './style.scss';
 
 function loadMapboxAccessToken() {
     return fetch('/mapbox-access-token')

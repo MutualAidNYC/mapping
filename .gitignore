@@ -13,3 +13,4 @@ Session.vim
 
 .env
 database.sqlite
+dist
