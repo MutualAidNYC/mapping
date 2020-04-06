@@ -7,9 +7,6 @@ const ExtractCssChunks = require('extract-css-chunks-webpack-plugin');
 const nodeEnv = process.env.NODE_ENV || 'development';
 const isDev = process.env.NODE_ENV === 'development';
 
-// Enable/disable css modules here.
-const USE_CSS_MODULES = true;
-
 // Setup the plugins for development/production.
 const getPlugins = () => {
   // Common
@@ -64,7 +61,10 @@ const getEntry = () => {
 };
 
 // Loaders for CSS and SASS.
-const getStyleLoaders = (sass = false) => {
+const getStyleLoaders = ({cssModules, postCss, sass}) => {
+  // These are both booleans.
+  const loaderCount = postCss + sass;
+
   const loaders = [
     {
       loader: ExtractCssChunks.loader,
@@ -77,16 +77,19 @@ const getStyleLoaders = (sass = false) => {
     {
       loader: 'css-loader',
       options: {
-        importLoaders: sass ? 2 : 1,
-        modules: USE_CSS_MODULES && {
+        importLoaders: loaderCount,
+        modules: cssModules && {
           localIdentName: isDev ? '[name]__[local]' : '[hash:base64:5]',
           context: path.resolve(process.cwd(), 'client'),
         },
         sourceMap: true,
       },
     },
-    { loader: 'postcss-loader', options: { sourceMap: true } },
   ];
+
+  if (postCss) {
+    loaders.push({ loader: 'postcss-loader', options: { sourceMap: true } });
+  }
 
   if (sass) {
     loaders.push({ loader: 'sass-loader', options: { sourceMap: true } });
@@ -113,11 +116,18 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: getStyleLoaders(),
+        exclude: /node_modules/,
+        use: getStyleLoaders({cssModules: true, postCss: true, sass: false}),
       },
       {
         test: /\.(scss|sass)$/,
-        use: getStyleLoaders(true),
+        exclude: /node_modules/,
+        use: getStyleLoaders({cssModules: true, postCss: true, sass: true}),
+      },
+      {
+        test: /\.css$/,
+        include: /node_modules/,
+        use: getStyleLoaders({cssModules: false, postCss: false, sass: false}),
       },
     ]
   },

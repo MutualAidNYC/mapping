@@ -1,4 +1,7 @@
 import style from './style.scss';
+import mapboxgl, { Map, NavigationControl, Popup } from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
 
 function loadMapboxAccessToken() {
     return fetch('/mapbox-access-token')
@@ -7,7 +10,7 @@ function loadMapboxAccessToken() {
 
 function loadMap() {
     return new Promise((resolve, reject) => {
-        const map = new mapboxgl.Map({
+        const map = new Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/light-v10',
             center: [-74.005, 40.705],
@@ -15,7 +18,7 @@ function loadMap() {
             scrollZoom: false,
         });
 
-        map.addControl(new mapboxgl.NavigationControl());
+        map.addControl(new NavigationControl());
 
         map.on('load', () => {
             resolve(map);
@@ -99,7 +102,7 @@ function configureMap(map, geodata) {
     function handleClick(e) {
         const description = e.features[0].properties.description;
 
-        new mapboxgl.Popup()
+        new Popup()
             .setMaxWidth('')
             .setLngLat(e.lngLat)
             .setHTML(description)
