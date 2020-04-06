@@ -8,7 +8,8 @@
     "dev": "cross-env NODE_ENV=development node ./index.js",
     "build": "npm run clean && npm run webpack",
     "clean": "rimraf ./dist",
-    "webpack": "cross-env NODE_ENV=production webpack --progress --hide-modules --config ./tools/webpack/config.js"
+    "webpack": "cross-env NODE_ENV=production webpack --progress --hide-modules --config ./tools/webpack/config.js",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -41,6 +42,7 @@
     "css-loader": "^3.4.2",
     "css-modules-require-hook": "^4.2.3",
     "cssnano": "^4.1.10",
+    "eslint": "^6.8.0",
     "express": "^4.17.1",
     "extract-css-chunks-webpack-plugin": "^4.7.4",
     "node-sass": "^4.13.1",
