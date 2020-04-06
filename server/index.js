@@ -61,10 +61,6 @@ app.get('/data/neighborhoods', (req, res) => {
     res.json(database.allNeighborhoods());
 });
 
-app.get('/data/communities', (req, res) => {
-    res.json(database.allCommunities());
-});
-
 
 // Sync Airtable to Database on a timer.
 

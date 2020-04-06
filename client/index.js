@@ -41,10 +41,6 @@ function loadGroups() {
             region: JSON.parse(group.region),
             // Array of foreign keys to "Ref - Neighborhood" table.
             servicingNeighborhood: JSON.parse(group.servicingNeighborhood),
-            // Array of foreign keys to "Ref - Most Impacted Groups" table.
-            communitiesServed: JSON.parse(group.communitiesServed),
-            // Array of foreign keys to "Ref - Most Impacted Groups" table.
-            advocacyIssues: JSON.parse(group.advocacyIssues),
         })));
 }
 
