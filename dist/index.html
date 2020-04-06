@@ -6,7 +6,6 @@
         <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
         <script src="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.js"></script>
         <link href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css" rel="stylesheet" />
-        <link href="style.css" rel="stylesheet" />
     </head>
     <body>
         <div id="map"></div>
@@ -14,6 +13,6 @@
             const params = new URLSearchParams(document.location.search.substring(1));
             window.FILL_OPACITY = Number(params.get('opacity') || 1);
         </script>
-        <script src="main.js"></script>
+        <script src="main.bundle.js"></script>
     </body>
 </html>

@@ -1,3 +1,5 @@
+import './style.css';
+
 function loadMapboxAccessToken() {
     return fetch('/mapbox-access-token')
         .then(response => response.text());
