@@ -10,11 +10,17 @@ Copy `.env-sample` to `.env`:
 $ cp .env-sample .env
 ```
 
-Copy your MapBox Access Token into the `.env` between the quotes, then:
+Copy the necessary values (surrounded by double quotes) into `.env`, including:
+
+* `MAPBOX_ACCESS_TOKEN`: Your own personal MapBox access token.
+* `AIRTABLE_API_KEY`: Your own personal Airtable API key.
+* `AIRTABLE_API_BASE`: The string representing the ID of the "MANYC Groups" Airtable Base. Found by navigating to the Base in Airtable, then "HELP → API documentation".
+
+Once the `.env` values are in place, install the npm packages and start the development server:
 
 ```
 $ npm install
-$ npm start
+$ npm run dev
 ```
 
 Visit `http://localhost:8000` to see the map.
