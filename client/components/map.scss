@@ -1,0 +1,25 @@
+:global(#map) {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+:global(.mapboxgl-popup) {
+    max-width: 80%;
+    height: 60%;
+
+    @media screen and (min-width: 768px) {
+        max-width: 60%;
+        height: 400px;
+    }
+
+    @media screen and (min-width: 900px) {
+        max-width: 40%;
+        height: 500px;
+    }
+}
+
+:global(.mapboxgl-popup-content) {
+    height: 100%;
+}

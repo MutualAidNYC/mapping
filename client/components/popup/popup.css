@@ -1,0 +1,24 @@
+.popup {
+    margin: 0;
+    height: 100%;
+    overflow: scroll;
+}
+
+.title {
+    margin: 0;
+    font-size: 24px;
+    line-height: 120%;
+}
+
+.sectionTitle {
+    margin: 0;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: #59A6E5; /* blue */
+    /* color: #A27CEF; purple */
+}
+
+.sectionTitleWithLocalGroups {
+    color: #43C59E; /* green */
+}
