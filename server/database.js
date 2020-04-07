@@ -9,8 +9,8 @@ const CREATE_GROUPS_STATEMENT = `
         website TEXT,
         groupPhone TEXT,
         groupEmail TEXT,
-        region TEXT,
-        servicingNeighborhood TEXT
+        geoScope TEXT,
+        neighborhoods TEXT
     )
 `;
 const UPSERT_GROUP_STATEMENT = `
@@ -21,8 +21,8 @@ const UPSERT_GROUP_STATEMENT = `
         website,
         groupPhone,
         groupEmail,
-        region,
-        servicingNeighborhood
+        geoScope,
+        neighborhoods
     ) VALUES (
         @airtableId,
         @name,
@@ -30,8 +30,8 @@ const UPSERT_GROUP_STATEMENT = `
         @website,
         @groupPhone,
         @groupEmail,
-        @region,
-        @servicingNeighborhood
+        @geoScope,
+        @neighborhoods
     )
     ON CONFLICT(airtableId) DO UPDATE SET
         name=excluded.name,
@@ -39,8 +39,8 @@ const UPSERT_GROUP_STATEMENT = `
         website=excluded.website,
         groupPhone=excluded.groupPhone,
         groupEmail=excluded.groupEmail,
-        region=excluded.region,
-        servicingNeighborhood=excluded.servicingNeighborhood
+        geoScope=excluded.geoScope,
+        neighborhoods=excluded.neighborhoods
     ;
 `;
 

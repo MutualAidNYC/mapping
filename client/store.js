@@ -17,25 +17,25 @@ function createStore(groups, neighborhoods) {
         return obj;
     }, {});
 
-    const ntaCodeToServicingGroup = {};
+    const ntaCodeToGroups = {};
     const boroughToLocatedGroup = {};
     const nycGroups = [];
     const nyGroups = [];
     const nationalGroups = [];
 
     groups.forEach(group => {
-        const servicingNeighborhoods = group.servicingNeighborhood;
+        const neighborhoods = group.neighborhoods;
         const regions = group.region;
 
-        if (Array.isArray(servicingNeighborhoods) && servicingNeighborhoods.length) {
-            servicingNeighborhoods.forEach((neighborhoodId) => {
+        if (Array.isArray(neighborhoods) && neighborhoods.length) {
+            neighborhoods.forEach((neighborhoodId) => {
                 const neighborhood = idToNeighborHood[neighborhoodId];
                 const ntaCode = neighborhood.ntaCode;
 
-                if (ntaCodeToServicingGroup[ntaCode] != null) {
-                    ntaCodeToServicingGroup[ntaCode].push(group);
+                if (ntaCodeToGroups[ntaCode] != null) {
+                    ntaCodeToGroups[ntaCode].push(group);
                 } else {
-                    ntaCodeToServicingGroup[ntaCode] = [group];
+                    ntaCodeToGroups[ntaCode] = [group];
                 }
             });
         } else if (Array.isArray(regions) && regions.length) {
@@ -60,7 +60,7 @@ function createStore(groups, neighborhoods) {
     const store = {
         idToNeighborHood,
         ntaCodeToNeighborhood,
-        ntaCodeToServicingGroup,
+        ntaCodeToGroups,
         boroughToLocatedGroup,
         nycGroups,
         nyGroups,

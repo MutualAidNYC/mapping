@@ -9,17 +9,17 @@ function generatePopup(store, ntaCode, boroName) {
         return;
     }
 
-    const groupsServicingNeighborhood = store.ntaCodeToServicingGroup[ntaCode];
+    const neighborhoodGroups = store.ntaCodeToGroups[ntaCode];
     const boroughGroups = store.boroughToLocatedGroup[boroName];
     const { nycGroups, nyGroups, nationalGroups } = store;
 
-    const hasLocalGroups = groupsServicingNeighborhood && groupsServicingNeighborhood.length;
+    const hasLocalGroups = neighborhoodGroups && neighborhoodGroups.length;
 
     const html = [];
 
     if (hasLocalGroups) {
         html.push(`<h2 class="${style.sectionTitle} ${style.sectionTitle} ${style.sectionTitleWithLocalGroups}">Groups in this Neighborhood</h2>`);
-        groupsServicingNeighborhood.forEach((group) => html.push(generateGroup(group)));
+        neighborhoodGroups.forEach((group) => html.push(generateGroup(group)));
     }
 
     if (boroughGroups && boroughGroups.length) {

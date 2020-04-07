@@ -42,9 +42,9 @@ class AirtableFetcher {
                     // String
                     groupEmail: sanitize(record.get('Group Email') || '').trim(),
                     // Array of strings
-                    region: JSON.stringify((record.get('Geographical Scope') || []).map(b => sanitize(b))),
+                    geoScope: JSON.stringify((record.get('Geographical Scope') || []).map(b => sanitize(b))),
                     // Array of foreign keys to "Ref - Neighborhoods" table.
-                    servicingNeighborhood: JSON.stringify((record.get('Neighborhoods') || []).map(n => sanitize(n))),
+                    neighborhoods: JSON.stringify((record.get('Neighborhoods') || []).map(n => sanitize(n))),
                 }))
                 .forEach(record => groups.push(record));
 

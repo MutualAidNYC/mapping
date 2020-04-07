@@ -29,18 +29,12 @@ function loadMap(container) {
 
 function configureMap(map, geodata, fillOpacity) {
     const bordersSourceId = 'nta-borders';
-    const servicedNeighborhoodsSourceId = 'nta-serviced-neighborhoods';
     const neighborhoodsWithLocalGroupsSourceId = 'nta-neighborhoods-with-local-groups';
     const unservicedNeighborhoodsSourceId = 'nta-unserviced-neighborhoods';
 
     map.addSource(bordersSourceId, {
         type: 'geojson',
         data: geodata.allNeighborhoods,
-    });
-
-    map.addSource(servicedNeighborhoodsSourceId, {
-        type: 'geojson',
-        data: geodata.neighborhoodsWithServicingLocalGroups,
     });
 
     map.addSource(neighborhoodsWithLocalGroupsSourceId, {
@@ -68,16 +62,7 @@ function configureMap(map, geodata, fillOpacity) {
         type: 'fill',
         source: neighborhoodsWithLocalGroupsSourceId,
         paint: {
-            'fill-color': '#A27CEF',
-            'fill-opacity': fillOpacity,
-        }
-    });
-
-    map.addLayer({
-        id: servicedNeighborhoodsSourceId,
-        type: 'fill',
-        source: servicedNeighborhoodsSourceId,
-        paint: {
+            // 'fill-color': '#A27CEF',
             'fill-color': '#43C59E',
             'fill-opacity': fillOpacity,
         }
@@ -120,17 +105,14 @@ function configureMap(map, geodata, fillOpacity) {
     // location of the feature, with description HTML from its properties.
     map.on('click', unservicedNeighborhoodsSourceId, handleClick);
     map.on('click', neighborhoodsWithLocalGroupsSourceId, handleClick);
-    map.on('click', servicedNeighborhoodsSourceId, handleClick);
 
     // Change the cursor to normal when the mouse leaves the layer.
     map.on('mouseleave', unservicedNeighborhoodsSourceId, handleMouseLeave);
     map.on('mouseleave', neighborhoodsWithLocalGroupsSourceId, handleMouseLeave);
-    map.on('mouseleave', servicedNeighborhoodsSourceId, handleMouseLeave);
 
     // Change the cursor to a pointer when the mouse is over the layer.
     map.on('mouseenter', unservicedNeighborhoodsSourceId, handleMouseEnter);
     map.on('mouseenter', neighborhoodsWithLocalGroupsSourceId, handleMouseEnter);
-    map.on('mouseenter', servicedNeighborhoodsSourceId, handleMouseEnter);
 }
 
 export {

@@ -38,9 +38,9 @@ function loadGroups() {
         .then(response => response.json())
         .then(groups => groups.map(group => Object.assign({}, group, {
             // Array of strings
-            region: JSON.parse(group.region),
+            geoScope: JSON.parse(group.geoScope),
             // Array of foreign keys to "Ref - Neighborhood" table.
-            servicingNeighborhood: JSON.parse(group.servicingNeighborhood),
+            neighborhoods: JSON.parse(group.neighborhoods),
         })));
 }
 
@@ -74,11 +74,6 @@ function transformNTAGeodata(ntaGeodata, store) {
         features: [],
     };
 
-    const neighborhoodsWithServicingLocalGroups = {
-        type: 'FeatureCollection',
-        features: [],
-    };
-
     const neighborhoodsWithLocalGroups = {
         type: 'FeatureCollection',
         features: [],
@@ -107,10 +102,10 @@ function transformNTAGeodata(ntaGeodata, store) {
 
         feature.properties = properties;
 
-        const groupsServicingNeighborhood = store.ntaCodeToServicingGroup[ntaCode];
-        const hasLocalGroups = groupsServicingNeighborhood && groupsServicingNeighborhood.length;
+        const neighborhoodGroups = store.ntaCodeToGroups[ntaCode];
+        const hasLocalGroups = neighborhoodGroups && neighborhoodGroups.length;
         if (hasLocalGroups) {
-            neighborhoodsWithServicingLocalGroups.features.push(feature);
+            neighborhoodsWithLocalGroups.features.push(feature);
         } else {
             neighborhoodsWithoutLocalGroups.features.push(feature);
         }
@@ -122,7 +117,6 @@ function transformNTAGeodata(ntaGeodata, store) {
         allNeighborhoods,
         neighborhoodsWithLocalGroups,
         neighborhoodsWithoutLocalGroups,
-        neighborhoodsWithServicingLocalGroups,
     }
 }
 
