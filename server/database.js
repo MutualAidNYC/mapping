@@ -15,12 +15,12 @@ const whereIn = (strings) => (array) => {
     .trim();
 };
 
-const insertMany = (strings) => (pairs) => {
+const insertMany = (strings, columnCount) => (tuples) => {
     const statement = [...strings];
     const endingSemicolon = statement.pop();
     return [
         ...statement,
-        pairs.map(() => "(?, ?)").join(','),
+        tuples.map(() => `(${'?'.repeat(columnCount).split('').join(',')})`).join(','),
         endingSemicolon
     ]
     .join('')
@@ -131,7 +131,7 @@ const CREATE_NEIGHBORHOODGROUPS_STATEMENTS = [
 ];
 const INSERT_NEIGHBORHOODGROUPS_STATEMENT_TEMPLATE = insertMany`
     INSERT INTO neighborhood_groups (neighborhoodId, groupId)
-    VALUES ${0};
+    VALUES ${2};
 `;
 
 
