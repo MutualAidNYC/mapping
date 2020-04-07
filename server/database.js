@@ -1,17 +1,90 @@
 import sqlite3 from 'better-sqlite3';
 
 
+// Helper methods for creating SQL statements.
+
+const whereIn = (strings) => (array) => {
+    const statement = [...strings];
+    const endingParenthesis = statement.pop();
+    return [
+        ...statement,
+        array.map(() => "?").join(','),
+        endingParenthesis
+    ]
+    .join('')
+    .trim();
+};
+
+const insertMany = (strings) => (pairs) => {
+    const statement = [...strings];
+    const endingSemicolon = statement.pop();
+    return [
+        ...statement,
+        pairs.map(() => "(?, ?)").join(','),
+        endingSemicolon
+    ]
+    .join('')
+    .trim();
+};
+
+
+// SQL Statements
+
+const CREATE_NEIGHBORHOODS_STATEMENTS = [
+`
+    CREATE TABLE IF NOT EXISTS neighborhoods (
+        airtableId TEXT PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
+        ntaCode TEXT NOT NULL,
+        boroName TEXT NOT NULL,
+        hide INTEGER NOT NULL,
+        hasLocalGroups INTEGER NOT NULL
+    );
+`,
+`
+    CREATE UNIQUE INDEX idx_neighborhoods_ntaCode
+    ON neighborhoods (ntaCode);
+`
+];
+const FLAG_NEIGHBORHOODS_WITH_LOCAL_GROUPS_STATEMENT_TEMPLATE = whereIn`
+    UPDATE neighborhoods SET hasLocalGroups = 1
+    WHERE airtableId IN (${0});
+`;
+const UPSERT_NEIGHBORHOOD_STATEMENT = `
+    INSERT INTO neighborhoods (
+        airtableId,
+        name,
+        ntaCode,
+        boroName,
+        hide,
+        hasLocalGroups
+    ) VALUES (
+        @airtableId,
+        @name,
+        @ntaCode,
+        @boroName,
+        @hide,
+        @hasLocalGroups
+    )
+    ON CONFLICT(airtableId) DO UPDATE SET
+        name=excluded.name,
+        ntaCode=excluded.ntaCode,
+        boroName=excluded.boroName,
+        hide=excluded.hide,
+        hasLocalGroups=excluded.hasLocalGroups
+    ;
+`;
+
 const CREATE_GROUPS_STATEMENT = `
     CREATE TABLE IF NOT EXISTS groups (
-        airtableId TEXT PRIMARY KEY,
-        name TEXT,
+        airtableId TEXT PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
         missionShort TEXT,
         website TEXT,
         groupPhone TEXT,
         groupEmail TEXT,
-        geoScope TEXT,
-        neighborhoods TEXT
-    )
+        geoScope TEXT
+    );
 `;
 const UPSERT_GROUP_STATEMENT = `
     INSERT INTO groups (
@@ -21,8 +94,7 @@ const UPSERT_GROUP_STATEMENT = `
         website,
         groupPhone,
         groupEmail,
-        geoScope,
-        neighborhoods
+        geoScope
     ) VALUES (
         @airtableId,
         @name,
@@ -30,8 +102,7 @@ const UPSERT_GROUP_STATEMENT = `
         @website,
         @groupPhone,
         @groupEmail,
-        @geoScope,
-        @neighborhoods
+        @geoScope
     )
     ON CONFLICT(airtableId) DO UPDATE SET
         name=excluded.name,
@@ -39,73 +110,110 @@ const UPSERT_GROUP_STATEMENT = `
         website=excluded.website,
         groupPhone=excluded.groupPhone,
         groupEmail=excluded.groupEmail,
-        geoScope=excluded.geoScope,
-        neighborhoods=excluded.neighborhoods
+        geoScope=excluded.geoScope
     ;
 `;
 
-const CREATE_NEIGHBORHOODS_STATEMENT = `
-    CREATE TABLE IF NOT EXISTS neighborhoods (
-        airtableId TEXT PRIMARY KEY,
-        name TEXT,
-        ntaCode TEXT,
-        boroName TEXT,
-        hide INTEGER
-    )
+const CREATE_NEIGHBORHOODGROUPS_STATEMENTS = [
+`
+    CREATE TABLE IF NOT EXISTS neighborhood_groups (
+        neighborhoodId TEXT NOT NULL,
+        groupId TEXT NOT NULL,
+        FOREIGN KEY(neighborhoodId) REFERENCES neighborhoods(airtableId) ON DELETE CASCADE,
+        FOREIGN KEY(groupId) REFERENCES groups(airtableId) ON DELETE CASCADE
+    );
+`,
+`
+    -- Index on neighborhoodId first, groupId second, to query "groups by neighborhood".
+    CREATE UNIQUE INDEX idx_neighborhoodgroups_neighborhoodId_groupId
+    ON neighborhood_groups (neighborhoodId, groupId);
+`
+];
+const INSERT_NEIGHBORHOODGROUPS_STATEMENT_TEMPLATE = insertMany`
+    INSERT INTO neighborhood_groups (neighborhoodId, groupId)
+    VALUES ${0};
 `;
-const UPSERT_NEIGHBORHOOD_STATEMENT = `
-    INSERT INTO neighborhoods (
-        airtableId,
-        name,
-        ntaCode,
-        boroName,
-        hide
-    ) VALUES (
-        @airtableId,
-        @name,
-        @ntaCode,
-        @boroName,
-        @hide
-    )
-    ON CONFLICT(airtableId) DO UPDATE SET
-        name=excluded.name,
-        ntaCode=excluded.ntaCode,
-        boroName=excluded.boroName,
-        hide=excluded.hide
-    ;
-`;
-
-
 
 class Database {
     constructor(databasePath) {
         this.db = sqlite3(databasePath);
+        this.configureDatabase()
         this.createTables();
-
-        this.selectAllGroupsQuery = this.db.prepare('SELECT * FROM groups;');
-        this.upsertGroupQuery = this.db.prepare(UPSERT_GROUP_STATEMENT);
 
         this.selectAllNeighborhoodsQuery = this.db.prepare('SELECT * FROM neighborhoods;');
         this.upsertNeighborhoodQuery = this.db.prepare(UPSERT_NEIGHBORHOOD_STATEMENT);
 
-        this.updateData = this.db.transaction(([groups, neighborhoods]) => {
-            groups.forEach((group) => this.upsertGroupQuery.run(group));
-            neighborhoods.forEach((neighborhood) => this.upsertNeighborhoodQuery.run(neighborhood));
+        this.selectAllGroupsQuery = this.db.prepare('SELECT * FROM groups;');
+        this.upsertGroupQuery = this.db.prepare(UPSERT_GROUP_STATEMENT);
+
+        this.updateData = this.db.transaction(({ neighborhoods, groups }) => {
+            this.updateNeighborhoods(neighborhoods);
+            this.updateGroups(groups);
+            this.rebuildNeighborhoodGroups(groups);
         });
     }
 
-    createTables() {
-        this.db.prepare(CREATE_GROUPS_STATEMENT).run();
-        this.db.prepare(CREATE_NEIGHBORHOODS_STATEMENT).run();
+    configureDatabase() {
+        this.db.pragma('foreign_keys = ON;');
     }
 
-    update([groups, neighborhoods]) {
+    createTables() {
+        const statements = [
+            ...CREATE_NEIGHBORHOODS_STATEMENTS,
+            CREATE_GROUPS_STATEMENT,
+            ...CREATE_NEIGHBORHOODGROUPS_STATEMENTS,
+        ];
+
+        for (const statement of statements) {
+            this.db.prepare(statement).run();
+        }
+    }
+
+    update([neighborhoods, groups]) {
         console.log('Updating the database with records fetched from Airtable.');
 
         try {
-            this.updateData([groups, neighborhoods]);
+            this.updateData({neighborhoods, groups});
         } catch (err) {
             console.error('There was an error updating the database with records fetched from Airtable. Aborting the update.', err);
+        }
+    }
+
+    updateNeighborhoods(neighborhoods) {
+        for (const neighborhood of neighborhoods) {
+            this.upsertNeighborhoodQuery.run(neighborhood);
+        }
+    }
+
+    updateGroups(groups) {
+        for (const group of groups) {
+            this.upsertGroupQuery.run(group);
+        }
+    }
+
+    rebuildNeighborhoodGroups(groups) {
+        const neighborhoodIdsToGroups = new Map();
+        for (const group of groups) {
+            if (group.neighborhoods.length === 0) {
+                continue;
+            }
+
+            for (const neighborhoodId of group.neighborhoods) {
+                const neighborhoodGroupIds = neighborhoodIdsToGroups.get(neighborhoodId) || new Set();
+                neighborhoodGroupIds.add(group.airtableId);
+                neighborhoodIdsToGroups.set(neighborhoodId, neighborhoodGroupIds);
+            }
+        }
+
+        // Set `hasLocalGroups` on neighborhoods table,
+        // for neighborhoods that have local groups.
+        const neighborhoodIds = [...neighborhoodIdsToGroups.keys()];
+        this.db.prepare(FLAG_NEIGHBORHOODS_WITH_LOCAL_GROUPS_STATEMENT_TEMPLATE(neighborhoodIds)).run(neighborhoodIds);
+
+        // Add many-to-many relationships between neighborhoods and groups.
+        for (const [neighborhoodId, groupIds] of neighborhoodIdsToGroups.entries()) {
+            const pairs = [...groupIds].map(groupId => [neighborhoodId, groupId]);
+            this.db.prepare(INSERT_NEIGHBORHOODGROUPS_STATEMENT_TEMPLATE(pairs)).run(pairs.flat());
         }
     }
 

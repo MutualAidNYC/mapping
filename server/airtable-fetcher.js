@@ -12,9 +12,47 @@ class AirtableFetcher {
 
     async fetch() {
         return Promise.all([
-            this.fetchGroups(),
             this.fetchNeighborhoods(),
+            this.fetchGroups(),
         ]);
+    }
+
+    async fetchNeighborhoods() {
+        console.log('Fetching Neighborhoods from Airtable');
+
+        const neighborhoodsBase = await this.base('Ref - Neighborhoods').select({
+            view: "Grid view"
+        });
+
+        const neighborhoods = [];
+
+        try {
+            await neighborhoodsBase.eachPage((records, fetchNextPage) => {
+                records.map((record) => ({
+                    // String
+                    airtableId: record.id,
+                    // String
+                    name: sanitize(record.get('Neighborhood Name')),
+                    // String
+                    ntaCode: sanitize(record.get('NTACode')),
+                    // String
+                    boroName: sanitize(record.get('BoroName')),
+                    // Boolean
+                    hide: Number(!!record.get('Hide')),
+                    // Initial state that'll be updated in the database once all groups are processed.
+                    // Is a number to match SQLite's INTEGER type used for booleans.
+                    hasLocalGroups: 0,
+                }))
+                .forEach(record => neighborhoods.push(record));
+
+                fetchNextPage();
+            });
+        } catch(err) {
+            console.error(err);
+            throw err;
+        }
+
+        return neighborhoods;
     }
 
     async fetchGroups() {
@@ -44,7 +82,7 @@ class AirtableFetcher {
                     // Array of strings
                     geoScope: JSON.stringify((record.get('Geographical Scope') || []).map(b => sanitize(b))),
                     // Array of foreign keys to "Ref - Neighborhoods" table.
-                    neighborhoods: JSON.stringify((record.get('Neighborhoods') || []).map(n => sanitize(n))),
+                    neighborhoods: (record.get('Neighborhoods') || []).map(n => sanitize(n)),
                 }))
                 .forEach(record => groups.push(record));
 
@@ -56,41 +94,6 @@ class AirtableFetcher {
         }
 
         return groups;
-    }
-
-    async fetchNeighborhoods() {
-        console.log('Fetching Neighborhoods from Airtable');
-
-        const neighborhoodsBase = await this.base('Ref - Neighborhoods').select({
-            view: "Grid view"
-        });
-
-        const neighborhoods = [];
-
-        try {
-            await neighborhoodsBase.eachPage((records, fetchNextPage) => {
-                records.map((record) => ({
-                    // String
-                    airtableId: record.id,
-                    // String
-                    name: sanitize(record.get('Neighborhood Name')),
-                    // String
-                    ntaCode: sanitize(record.get('NTACode')),
-                    // String
-                    boroName: sanitize(record.get('BoroName')),
-                    // Boolean
-                    hide: Number(!!record.get('Hide')),
-                }))
-                .forEach(record => neighborhoods.push(record));
-
-                fetchNextPage();
-            });
-        } catch(err) {
-            console.error(err);
-            throw err;
-        }
-
-        return neighborhoods;
     }
 }
 

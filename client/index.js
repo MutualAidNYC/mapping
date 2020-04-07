@@ -50,25 +50,6 @@ function loadNeighborhoods() {
 }
 
 function transformNTAGeodata(ntaGeodata, store) {
-    // GeoJSON - "Feature" Format
-    //
-    // {
-    //   "type": "Feature",
-    //   "properties": {
-    //     "ntacode": "BK88",
-    //     "shape_area": "54005019.048",
-    //     "county_fips": "047",
-    //     "ntaname": "Borough Park",
-    //     "shape_leng": "39247.2278309",
-    //     "boro_name": "Brooklyn",
-    //     "boro_code": "3"
-    //   },
-    //   "geometry": {
-    //     "type": "MultiPolygon",
-    //     "coordinates": [...]
-    //   }
-    // }
-
     const allNeighborhoods = {
         type: 'FeatureCollection',
         features: [],
@@ -97,13 +78,12 @@ function transformNTAGeodata(ntaGeodata, store) {
         }
 
         const properties = Object.assign({}, feature.properties, {
-            description: generatePopup(store, ntaCode, boroName)
+            // description: generatePopup(store, ntaCode, boroName)
         });
 
         feature.properties = properties;
 
-        const neighborhoodGroups = store.ntaCodeToGroups[ntaCode];
-        const hasLocalGroups = neighborhoodGroups && neighborhoodGroups.length;
+        const hasLocalGroups = neighborhood.hasLocalGroups === 1;
         if (hasLocalGroups) {
             neighborhoodsWithLocalGroups.features.push(feature);
         } else {
@@ -121,9 +101,9 @@ function transformNTAGeodata(ntaGeodata, store) {
 }
 
 function loadGeodata() {
-    return Promise.all([loadGroups(), loadNeighborhoods(), loadNTAGeodata()])
-        .then(([groups, neighborhoods, ntaGeodata]) => {
-            const store = createStore(groups, neighborhoods);
+    return Promise.all([loadNeighborhoods(), loadNTAGeodata()])
+        .then(([neighborhoods, ntaGeodata]) => {
+            const store = createStore(neighborhoods);
             const geodata = transformNTAGeodata(ntaGeodata, store);
             return geodata;
         });
