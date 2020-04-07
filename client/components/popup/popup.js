@@ -2,39 +2,34 @@ import generateGroup from './group';
 import style from './popup.css';
 
 
-function generatePopup(store, ntaCode, boroName) {
-    const neighborhood = store.ntaCodeToNeighborhood[ntaCode];
-
-    if (neighborhood.hide) {
-        return;
-    }
-
-    const neighborhoodGroups = store.ntaCodeToGroups[ntaCode];
-    const boroughGroups = store.boroughToLocatedGroup[boroName];
-    const { nycGroups, nyGroups, nationalGroups } = store;
-
-    const hasLocalGroups = neighborhoodGroups && neighborhoodGroups.length;
-
+function generatePopupHtml({
+    neighborhoodName,
+    localGroups,
+    boroGroups,
+    groupsInNyc,
+    groupsInNys,
+    nationalGroups
+}) {
     const html = [];
 
-    if (hasLocalGroups) {
+    if (localGroups && localGroups.length) {
         html.push(`<h2 class="${style.sectionTitle} ${style.sectionTitle} ${style.sectionTitleWithLocalGroups}">Groups in this Neighborhood</h2>`);
-        neighborhoodGroups.forEach((group) => html.push(generateGroup(group)));
+        localGroups.forEach((group) => html.push(generateGroup(group)));
     }
 
-    if (boroughGroups && boroughGroups.length) {
+    if (boroGroups && boroGroups.length) {
         html.push(`<h2 class="${style.sectionTitle}">Groups in this Borough</h2>`);
-        boroughGroups.forEach((group) => html.push(generateGroup(group)));
+        boroGroups.forEach((group) => html.push(generateGroup(group)));
     }
 
-    if (nycGroups.length) {
+    if (groupsInNyc.length) {
         html.push(`<h2 class="${style.sectionTitle}">Groups in NYC</h2>`);
-        nycGroups.forEach((group) => html.push(generateGroup(group)));
+        groupsInNyc.forEach((group) => html.push(generateGroup(group)));
     }
 
-    if (nyGroups.length) {
+    if (groupsInNys.length) {
         html.push(`<h2 class="${style.sectionTitle}">Groups in New York State</h2>`);
-        nyGroups.forEach((group) => html.push(generateGroup(group)));
+        groupsInNys.forEach((group) => html.push(generateGroup(group)));
     }
 
     if (nationalGroups.length) {
@@ -44,10 +39,10 @@ function generatePopup(store, ntaCode, boroName) {
 
     return `
         <div class="${style.popup}">
-            <h1 class="${style.title}">${neighborhood.name}</h1>
+            <h1 class="${style.title}">${neighborhoodName}</h1>
             ${html.join('')}
         </div>
     `.trim();
 }
 
-export default generatePopup;
+export default generatePopupHtml;

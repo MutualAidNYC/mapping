@@ -54,11 +54,22 @@ app.get('/mapbox-access-token', (req, res) => {
 });
 
 app.get('/data/groups', (req, res) => {
-    res.json(database.allGroups());
+    if (req.query.nonlocal === "true") {
+        res.json(database.allNonlocalGroups());
+    } else if (req.query.boroName) {
+        res.json(database.allGroupsInBoro(req.query.boroName));
+    } else {
+        res.json(database.allGroups());
+    }
 });
 
 app.get('/data/neighborhoods', (req, res) => {
     res.json(database.allNeighborhoods());
+});
+
+app.get('/data/neighborhoods/:neighborhoodId/groups', (req, res) => {
+    const { neighborhoodId } = req.params;
+    res.json(database.allGroupsInNeighborhood(neighborhoodId));
 });
 
 

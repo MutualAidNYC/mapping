@@ -134,6 +134,12 @@ const INSERT_NEIGHBORHOODGROUPS_STATEMENT_TEMPLATE = insertMany`
     VALUES ${2};
 `;
 
+const SELECT_ALL_GROUPS_IN_NEIGHBORHOOD_STATEMENT = `
+    SELECT * FROM groups INNER JOIN neighborhood_groups
+    ON groups.airtableId = neighborhood_groups.groupId
+    WHERE neighborhood_groups.neighborhoodId = ?;
+`;
+
 
 class Database {
     constructor(databasePath) {
@@ -145,6 +151,9 @@ class Database {
         this.upsertNeighborhoodQuery = this.db.prepare(UPSERT_NEIGHBORHOOD_STATEMENT);
 
         this.selectAllGroupsQuery = this.db.prepare('SELECT * FROM groups;');
+        this.selectAllGroupsInNeighborhoodQuery = this.db.prepare(SELECT_ALL_GROUPS_IN_NEIGHBORHOOD_STATEMENT);
+        // this.selectAllGroupsInBoroQuery = this.db.prepare(SELECT_ALL_GROUPS_IN_BORO_STATEMENT);
+
         this.upsertGroupQuery = this.db.prepare(UPSERT_GROUP_STATEMENT);
 
         this.deleteNeighborhoodGroups = this.db.prepare('DELETE FROM neighborhood_groups');
@@ -221,6 +230,25 @@ class Database {
 
     allGroups() {
         return this.selectAllGroupsQuery.all();
+    }
+
+    allGroupsInNeighborhood(neighborhoodId) {
+        return this.selectAllGroupsInNeighborhoodQuery.all(neighborhoodId);
+    }
+
+    allGroupsInBoro(boroName) {
+        // TODO
+        return [];
+        // return this.selectAllGroupsInBoroQuery.all(boroName);
+    }
+
+    allNonlocalGroups() {
+        // TODO:
+        return {
+            groupsInNyc: [],
+            groupsInNys: [],
+            nationalGroups: [],
+        };
     }
 
     allNeighborhoods() {
