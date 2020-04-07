@@ -42,7 +42,7 @@ const CREATE_NEIGHBORHOODS_STATEMENTS = [
     );
 `,
 `
-    CREATE UNIQUE INDEX idx_neighborhoods_ntaCode
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_neighborhoods_ntaCode
     ON neighborhoods (ntaCode);
 `
 ];
@@ -125,7 +125,7 @@ const CREATE_NEIGHBORHOODGROUPS_STATEMENTS = [
 `,
 `
     -- Index on neighborhoodId first, groupId second, to query "groups by neighborhood".
-    CREATE UNIQUE INDEX idx_neighborhoodgroups_neighborhoodId_groupId
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_neighborhoodgroups_neighborhoodId_groupId
     ON neighborhood_groups (neighborhoodId, groupId);
 `
 ];
