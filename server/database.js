@@ -134,6 +134,7 @@ const INSERT_NEIGHBORHOODGROUPS_STATEMENT_TEMPLATE = insertMany`
     VALUES ${0};
 `;
 
+
 class Database {
     constructor(databasePath) {
         this.db = sqlite3(databasePath);
@@ -145,6 +146,8 @@ class Database {
 
         this.selectAllGroupsQuery = this.db.prepare('SELECT * FROM groups;');
         this.upsertGroupQuery = this.db.prepare(UPSERT_GROUP_STATEMENT);
+
+        this.deleteNeighborhoodGroups = this.db.prepare('DELETE FROM neighborhood_groups');
 
         this.updateData = this.db.transaction(({ neighborhoods, groups }) => {
             this.updateNeighborhoods(neighborhoods);
@@ -209,6 +212,9 @@ class Database {
         // for neighborhoods that have local groups.
         const neighborhoodIds = [...neighborhoodIdsToGroups.keys()];
         this.db.prepare(FLAG_NEIGHBORHOODS_WITH_LOCAL_GROUPS_STATEMENT_TEMPLATE(neighborhoodIds)).run(neighborhoodIds);
+
+        // Delete existing many-to-many relationships between neighborhoods and groups.
+        this.deleteNeighborhoodGroups.run();
 
         // Add many-to-many relationships between neighborhoods and groups.
         for (const [neighborhoodId, groupIds] of neighborhoodIdsToGroups.entries()) {
