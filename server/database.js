@@ -197,10 +197,6 @@ class Database {
     rebuildNeighborhoodGroups(groups) {
         const neighborhoodIdsToGroups = new Map();
         for (const group of groups) {
-            if (group.neighborhoods.length === 0) {
-                continue;
-            }
-
             for (const neighborhoodId of group.neighborhoods) {
                 const neighborhoodGroupIds = neighborhoodIdsToGroups.get(neighborhoodId) || new Set();
                 neighborhoodGroupIds.add(group.airtableId);
