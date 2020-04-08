@@ -1,4 +1,4 @@
-import generateGroup from './group';
+import generateGroupHtml from './group';
 import style from './popup.css';
 
 
@@ -30,8 +30,8 @@ function generatePopupHtml({
     const notAlreadyDisplayed = (group) => !displayedGroupIds.has(group.airtableId);
     const byName = (groupA, groupB) => groupA.name.localeCompare(groupB.name);
     const display = (group) => {
+        sections.push(generateGroupHtml(group));
         displayedGroupIds.add(group.airtableId);
-        sections.push(generateGroup(group));
     }
 
     const addSection = (groups, title, isLocalGroups = false) => {

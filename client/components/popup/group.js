@@ -1,7 +1,7 @@
 import style from './group.css';
 
 
-function generateGroup(group) {
+function generateGroupHtml(group) {
     const {
         name,
         missionShort: description,
@@ -52,4 +52,4 @@ function generateGroup(group) {
     //     : '' }
 }
 
-export default generateGroup;
+export default generateGroupHtml;
