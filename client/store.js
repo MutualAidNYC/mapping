@@ -1,10 +1,13 @@
 class Store {
 
     constructor() {
+        // The NYC Open Data Neighborhood GeoJSON.
+        this.geodata = null;
+
+        // Neighborhood data from Airtable.
         this.neighborhoods = [];
         this.neighborhoodsById = {};
         this.neighborhoodsByNtaCode = {};
-        this.geodata = null;
 
         // Local groups data.
         this.groupsByNeighborhoodId = {};
@@ -15,7 +18,8 @@ class Store {
     }
 
     async fetchData() {
-        const [neighborhoods, geodata] = await Promise.all([this._fetchNeighborhoods(), this._fetchGeodata()]);
+        const [geodata, neighborhoods] = await Promise.all([this._fetchGeodata(), this._fetchNeighborhoods()]);
+        this.geodata = geodata;
         this.neighborhoods = neighborhoods;
         this.neighborhoodsById = neighborhoods.reduce((memo, neighborhood) => {
             memo[neighborhood.id] = neighborhood;
@@ -25,7 +29,6 @@ class Store {
             memo[neighborhood.ntaCode] = neighborhood;
             return memo;
         }, {});
-        this.geodata = geodata;
     }
 
     async fetchGroupsInNeighborhood(ntaCode) {
@@ -125,65 +128,6 @@ class Store {
             }),
         };
     }
-
-    // _breakdownGroup() {
-        // Support breaking down group list into:
-        //
-        // Groups in this Neighborhood
-        // Groups in this Borough
-        // Groups in NYC
-        // Groups in New York State
-        // National Groups
-
-        // const ntaCodeToGroups = {};
-        // const boroughToLocatedGroup = {};
-
-        // groups.forEach(group => {
-        //     const neighborhoods = group.neighborhoods;
-        //     const regions = group.region;
-
-        //     if (Array.isArray(neighborhoods) && neighborhoods.length) {
-        //         neighborhoods.forEach((neighborhoodId) => {
-        //             const neighborhood = idToNeighborHood[neighborhoodId];
-        //             const ntaCode = neighborhood.ntaCode;
-
-        //             if (ntaCodeToGroups[ntaCode] != null) {
-        //                 ntaCodeToGroups[ntaCode].push(group);
-        //             } else {
-        //                 ntaCodeToGroups[ntaCode] = [group];
-        //             }
-        //         });
-        //     } else if (Array.isArray(regions) && regions.length) {
-        //         regions.forEach((region) => {
-        //             if (region === 'New York City') {
-        //                 nycGroups.push(group);
-        //             } else if (region === 'New York State') {
-        //                 nyGroups.push(group);
-        //             } else if (region === 'National') {
-        //                 nationalGroups.push(group);
-        //             } else {
-        //                 if (boroughToLocatedGroup[region] != null) {
-        //                     boroughToLocatedGroup[region].push(group);
-        //                 } else {
-        //                     boroughToLocatedGroup[region] = [group];
-        //                 }
-        //             }
-        //         });
-        //     }
-        // });
-
-        // const store = {
-        //     idToNeighborHood,
-        //     ntaCodeToNeighborhood,
-        //     ntaCodeToGroups,
-        //     boroughToLocatedGroup,
-        //     nycGroups,
-        //     nyGroups,
-        //     nationalGroups,
-        // };
-
-        // return store;
-    // }
 
 }
 
