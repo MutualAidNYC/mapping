@@ -42,8 +42,10 @@ function generatePopupHtml({
         }
     }
 
+    const boroGroupsWithoutNeighborhoods = boroGroups.filter((group) => !group.hasLocalNeighborhoods);
+
     addSection(localGroups, 'Groups in this Neighborhood', true);
-    addSection(boroGroups, 'Groups in this Borough');
+    addSection(boroGroupsWithoutNeighborhoods, 'Groups in this Borough');
     addSection(nonlocalGroups[NEW_YORK_CITY], 'Groups in NYC');
     addSection(nonlocalGroups[NEW_YORK_STATE], 'Groups in New York State');
     addSection(nonlocalGroups[NATIONAL], 'National Groups');

@@ -99,7 +99,8 @@ const CREATE_GROUPS_STATEMENT = `
         missionShort TEXT,
         website TEXT,
         groupPhone TEXT,
-        groupEmail TEXT
+        groupEmail TEXT,
+        hasLocalNeighborhoods INTEGER NOT NULL
     );
 `;
 const UPSERT_GROUP_STATEMENT = `
@@ -109,21 +110,24 @@ const UPSERT_GROUP_STATEMENT = `
         missionShort,
         website,
         groupPhone,
-        groupEmail
+        groupEmail,
+        hasLocalNeighborhoods
     ) VALUES (
         @airtableId,
         @name,
         @missionShort,
         @website,
         @groupPhone,
-        @groupEmail
+        @groupEmail,
+        @hasLocalNeighborhoods
     )
     ON CONFLICT(airtableId) DO UPDATE SET
         name=excluded.name,
         missionShort=excluded.missionShort,
         website=excluded.website,
         groupPhone=excluded.groupPhone,
-        groupEmail=excluded.groupEmail
+        groupEmail=excluded.groupEmail,
+        hasLocalNeighborhoods=excluded.hasLocalNeighborhoods
     ;
 `;
 
@@ -267,6 +271,8 @@ class Database {
         this.deleteGroupsQuery.run();
 
         for (const group of groups) {
+            // Number because SQLite uses INTEGER for booleans.
+            group.hasLocalNeighborhoods = Number(group.neighborhoods.length !== 0);
             this.upsertGroupQuery.run(group);
         }
     }
