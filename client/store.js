@@ -33,12 +33,8 @@ class Store {
         const neighborhoodId = neighborhood.airtableId;
 
         if (this.groupsByNeighborhoodId[neighborhoodId] == null) {
-            const [localGroupsResponse] = await Promise.all([
-                fetch(`/data/neighborhoods/${neighborhoodId}/groups`),
-                // Lazy-load all nonlocal groups as well.
-                this.fetchNonlocalGroups()
-            ]);
-            const groups = await localGroupsResponse.json();
+            const response = await fetch(`/data/neighborhoods/${neighborhoodId}/groups`);
+            const groups = await response.json();
 
             this.groupsByNeighborhoodId[neighborhoodId] = groups;
         }
