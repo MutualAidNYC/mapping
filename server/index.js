@@ -22,7 +22,7 @@ const airtableBase = new Airtable({
 
 const airtableFetcher = new AirtableFetcher(airtableBase);
 
-const DATABASE_PATH = path.resolve(__dirname, 'database.sqlite');
+const DATABASE_PATH = path.resolve(process.cwd(), 'database.sqlite');
 const database = new Database(DATABASE_PATH);
 
 const app = express();
