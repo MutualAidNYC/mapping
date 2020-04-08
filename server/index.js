@@ -54,6 +54,31 @@ app.get('/data/neighborhoods/:neighborhoodId/groups', (req, res) => {
     res.json(database.allGroupsInNeighborhood(neighborhoodId));
 });
 
+// Serve index HTML.
+app.get('/', (req, res) => {
+    const { link, script } = Object.entries(webpackAssets).reduce(({link, script}, [devPath, prodPath]) => {
+        const path = isDev ? devPath : prodPath;
+        if (devPath.endsWith('css')) {
+            link.push(`<link href="${path}" rel="stylesheet"/>`);
+        } else if (devPath.endsWith('js')) {
+            script.push(`<script src="${path}"></script>`);
+        }
+        return {link, script};
+    }, {link: [], script: []});
+
+    const head = {
+        htmlAttributes: 'lang="en"',
+        title: '<title>Mutual Aid NYC Neighborhood Groups Map</title>',
+        meta: [],
+        link,
+        script,
+    };
+
+    const htmlContent = '<div id="map"></div>';
+
+    res.send(renderHtml(head, htmlContent));
+});
+
 
 // Configure the HTTP server.
 
@@ -90,29 +115,6 @@ if (AIRTABLE_FETCH_INTERVAL_MINUTES > 0) {
     setInterval(() => syncAirtableToDatabase(), AIRTABLE_FETCH_INTERVAL_MINUTES * 60 * 1000);
 }
 
-app.get('/', (req, res) => {
-    const { link, script } = Object.entries(webpackAssets).reduce(({link, script}, [devPath, prodPath]) => {
-        const path = isDev ? devPath : prodPath;
-        if (devPath.endsWith('css')) {
-            link.push(`<link href="${path}" rel="stylesheet"/>`);
-        } else if (devPath.endsWith('js')) {
-            script.push(`<script src="${path}"></script>`);
-        }
-        return {link, script};
-    }, {link: [], script: []});
-
-    const head = {
-        htmlAttributes: 'lang="en"',
-        title: '<title>Mutual Aid NYC Neighborhood Groups Map</title>',
-        meta: [],
-        link,
-        script,
-    };
-
-    const htmlContent = '<div id="map"></div>';
-
-    res.send(renderHtml(head, htmlContent));
-});
 
 // Start the HTTP server.
 
