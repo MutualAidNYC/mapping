@@ -98,24 +98,18 @@ class NeighborhoodMap {
             } = event.features[0].properties;
 
             const neighborhood = store.neighborhoodByNtaCode(ntaCode);
-            const [localGroups, boroGroups] = await Promise.all([
+            const [localGroups, boroGroups, nonlocalGroups] = await Promise.all([
                 store.fetchGroupsInNeighborhood(ntaCode),
-                store.fetchGroupsByBoroName(boroName)
+                store.fetchGroupsByBoroName(boroName),
+                store.fetchNonlocalGroups()
             ]);
-            const {
-                groupsInNyc,
-                groupsInNys,
-                nationalGroups,
-            } = store;
 
             const description = generatePopupHtml({
                 neighborhoodName: neighborhood.name,
                 localGroups,
                 boroGroups,
-                groupsInNyc,
-                groupsInNys,
-                nationalGroups,
-            })
+                nonlocalGroups,
+            });
 
             new Popup()
                 .setMaxWidth('')

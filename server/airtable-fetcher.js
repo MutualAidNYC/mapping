@@ -80,7 +80,7 @@ class AirtableFetcher {
                     // String
                     groupEmail: sanitize(record.get('Group Email') || '').trim(),
                     // Array of strings
-                    geoScope: JSON.stringify((record.get('Geographical Scope') || []).map(b => sanitize(b))),
+                    geoscopes: (record.get('Geographical Scope') || []).map(b => sanitize(b)),
                     // Array of foreign keys to "Ref - Neighborhoods" table.
                     neighborhoods: (record.get('Neighborhoods') || []).map(n => sanitize(n)),
                 }))

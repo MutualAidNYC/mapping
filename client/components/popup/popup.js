@@ -2,45 +2,57 @@ import generateGroup from './group';
 import style from './popup.css';
 
 
+const NONLOCAL_GEOSCOPES = {
+    NEW_YORK_CITY: 'New York City',
+    NEW_YORK_STATE: 'New York State',
+    NATIONAL: 'National',
+    GLOBAL: 'Global',
+};
+
 function generatePopupHtml({
     neighborhoodName,
     localGroups,
     boroGroups,
-    groupsInNyc,
-    groupsInNys,
-    nationalGroups
+    nonlocalGroups,
 }) {
-    const html = [];
+    const {
+        NEW_YORK_CITY,
+        NEW_YORK_STATE,
+        NATIONAL,
+        GLOBAL,
+    } = NONLOCAL_GEOSCOPES;
 
-    if (localGroups && localGroups.length) {
-        html.push(`<h2 class="${style.sectionTitle} ${style.sectionTitle} ${style.sectionTitleWithLocalGroups}">Groups in this Neighborhood</h2>`);
-        localGroups.forEach((group) => html.push(generateGroup(group)));
+    const sections = [];
+    const addSectionTitle = (title, isLocalGroups) => {
+        sections.push(`<h2 class="${style.sectionTitle} ${isLocalGroups ? style.sectionTitleWithLocalGroups : ''}">${title}</h2>`);
+    }
+    const displayedGroupIds = new Set();
+    const notAlreadyDisplayed = (group) => !displayedGroupIds.has(group.airtableId);
+    const byName = (groupA, groupB) => groupA.name.localeCompare(groupB.name);
+    const display = (group) => {
+        displayedGroupIds.add(group.airtableId);
+        sections.push(generateGroup(group));
     }
 
-    if (boroGroups && boroGroups.length) {
-        html.push(`<h2 class="${style.sectionTitle}">Groups in this Borough</h2>`);
-        boroGroups.forEach((group) => html.push(generateGroup(group)));
+    const addSection = (groups, title, isLocalGroups = false) => {
+        const filteredGroups = groups.filter(notAlreadyDisplayed).sort(byName);
+        if (filteredGroups.length) {
+            addSectionTitle(title, isLocalGroups);
+            filteredGroups.forEach(display);
+        }
     }
 
-    if (groupsInNyc.length) {
-        html.push(`<h2 class="${style.sectionTitle}">Groups in NYC</h2>`);
-        groupsInNyc.forEach((group) => html.push(generateGroup(group)));
-    }
-
-    if (groupsInNys.length) {
-        html.push(`<h2 class="${style.sectionTitle}">Groups in New York State</h2>`);
-        groupsInNys.forEach((group) => html.push(generateGroup(group)));
-    }
-
-    if (nationalGroups.length) {
-        html.push(`<h2 class="${style.sectionTitle}">National Groups</h2>`);
-        nationalGroups.forEach((group) => html.push(generateGroup(group)));
-    }
+    addSection(localGroups, 'Groups in this Neighborhood', true);
+    addSection(boroGroups, 'Groups in this Borough');
+    addSection(nonlocalGroups[NEW_YORK_CITY], 'Groups in NYC');
+    addSection(nonlocalGroups[NEW_YORK_STATE], 'Groups in New York State');
+    addSection(nonlocalGroups[NATIONAL], 'National Groups');
+    addSection(nonlocalGroups[GLOBAL], 'Global Groups');
 
     return `
         <div class="${style.popup}">
             <h1 class="${style.title}">${neighborhoodName}</h1>
-            ${html.join('')}
+            ${sections.join('')}
         </div>
     `.trim();
 }

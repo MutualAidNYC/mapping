@@ -75,6 +75,23 @@ const UPSERT_NEIGHBORHOOD_STATEMENT = `
     ;
 `;
 
+const CREATE_GEOSCOPES_STATEMENTS =
+[
+`
+    CREATE TABLE IF NOT EXISTS geoscopes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL
+    );
+`,
+`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_geoscopes_name
+    ON geoscopes(name);
+`
+];
+const UPSERT_GEOSCOPE_STATEMENT_TEMPLATE = insertMany`
+    INSERT OR IGNORE INTO geoscopes ( name ) VALUES ${1};
+`;
+
 const CREATE_GROUPS_STATEMENT = `
     CREATE TABLE IF NOT EXISTS groups (
         airtableId TEXT PRIMARY KEY NOT NULL,
@@ -82,8 +99,7 @@ const CREATE_GROUPS_STATEMENT = `
         missionShort TEXT,
         website TEXT,
         groupPhone TEXT,
-        groupEmail TEXT,
-        geoScope TEXT
+        groupEmail TEXT
     );
 `;
 const UPSERT_GROUP_STATEMENT = `
@@ -93,25 +109,63 @@ const UPSERT_GROUP_STATEMENT = `
         missionShort,
         website,
         groupPhone,
-        groupEmail,
-        geoScope
+        groupEmail
     ) VALUES (
         @airtableId,
         @name,
         @missionShort,
         @website,
         @groupPhone,
-        @groupEmail,
-        @geoScope
+        @groupEmail
     )
     ON CONFLICT(airtableId) DO UPDATE SET
         name=excluded.name,
         missionShort=excluded.missionShort,
         website=excluded.website,
         groupPhone=excluded.groupPhone,
-        groupEmail=excluded.groupEmail,
-        geoScope=excluded.geoScope
+        groupEmail=excluded.groupEmail
     ;
+`;
+
+const CREATE_GEOSCOPEGROUPS_STATEMENTS = [
+`
+    CREATE TABLE IF NOT EXISTS geoscope_groups (
+        geoscopeId INTEGER NOT NULL,
+        groupId TEXT NOT NULL,
+        FOREIGN KEY(geoscopeId) REFERENCES geoscopes(id) ON DELETE CASCADE,
+        FOREIGN KEY(groupId) REFERENCES groups(airtableId) ON DELETE CASCADE
+    );
+`,
+`
+    -- Index on geoscopeId first, groupId second, to query "groups by geoscope".
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_geoscopegroups_geoscopeId_groupId
+    ON geoscope_groups (geoscopeId, groupId);
+`
+];
+const INSERT_GEOSCOPEGROUPS_STATEMENT_TEMPLATE = insertMany`
+    INSERT INTO geoscope_groups (geoscopeId, groupId)
+    VALUES ${2};
+`;
+const SELECT_ALL_GROUPS_IN_GEOSCOPES_STATEMENT_TEMPLATE = whereIn`
+    SELECT
+        geoscopes.name as geoscopeName,
+        groups.*
+    FROM groups
+    INNER JOIN geoscope_groups
+        ON geoscope_groups.groupId = groups.airtableId
+    INNER JOIN geoscopes
+        ON geoscope_groups.geoscopeId = geoscopes.id
+    WHERE geoscopes.name IN (${0})
+    ORDER BY geoscopes.name;
+`;
+const SELECT_ALL_GROUPS_IN_BORO_STATEMENT = `
+    SELECT groups.*, geoscopes.name as geoscopeName
+    FROM groups
+    INNER JOIN geoscope_groups
+        ON groups.airtableId = geoscope_groups.groupId
+    INNER JOIN geoscopes
+        ON geoscopes.id = geoscope_groups.geoscopeId
+    WHERE geoscopes.name = ?;
 `;
 
 const CREATE_NEIGHBORHOODGROUPS_STATEMENTS = [
@@ -152,15 +206,20 @@ class Database {
 
         this.selectAllGroupsQuery = this.db.prepare('SELECT * FROM groups;');
         this.selectAllGroupsInNeighborhoodQuery = this.db.prepare(SELECT_ALL_GROUPS_IN_NEIGHBORHOOD_STATEMENT);
-        // this.selectAllGroupsInBoroQuery = this.db.prepare(SELECT_ALL_GROUPS_IN_BORO_STATEMENT);
-
+        this.selectAllGroupsInBoroQuery = this.db.prepare(SELECT_ALL_GROUPS_IN_BORO_STATEMENT);
         this.upsertGroupQuery = this.db.prepare(UPSERT_GROUP_STATEMENT);
 
+        this.selectAllGeoscopesQuery = this.db.prepare('SELECT * FROM geoscopes;');
+
+        this.deleteGeoscopeGroups = this.db.prepare('DELETE FROM geoscope_groups');
         this.deleteNeighborhoodGroups = this.db.prepare('DELETE FROM neighborhood_groups');
 
         this.updateData = this.db.transaction(({ neighborhoods, groups }) => {
             this.updateNeighborhoods(neighborhoods);
             this.updateGroups(groups);
+            this.updateGeoscopes(groups);
+
+            this.rebuildGeoscopeGroups(groups);
             this.rebuildNeighborhoodGroups(groups);
         });
     }
@@ -172,7 +231,9 @@ class Database {
     createTables() {
         const statements = [
             ...CREATE_NEIGHBORHOODS_STATEMENTS,
+            ...CREATE_GEOSCOPES_STATEMENTS,
             CREATE_GROUPS_STATEMENT,
+            ...CREATE_GEOSCOPEGROUPS_STATEMENTS,
             ...CREATE_NEIGHBORHOODGROUPS_STATEMENTS,
         ];
 
@@ -200,6 +261,44 @@ class Database {
     updateGroups(groups) {
         for (const group of groups) {
             this.upsertGroupQuery.run(group);
+        }
+    }
+
+    updateGeoscopes(groups) {
+        const geoscopes = new Set();
+
+        for (const group of groups) {
+            for (const geoscope of group.geoscopes) {
+                geoscopes.add(geoscope);
+            }
+        }
+
+        this.db.prepare(UPSERT_GEOSCOPE_STATEMENT_TEMPLATE([...geoscopes])).run([...geoscopes]);
+    }
+
+    rebuildGeoscopeGroups(groups) {
+        const geoscopeNameToId = new Map();
+        for (const { id, name } of this.selectAllGeoscopesQuery.all()) {
+            geoscopeNameToId.set(name, id);
+        }
+
+        const geoscopeIdToGroupIds = new Map();
+        for (const group of groups) {
+            for (const geoscopeName of group.geoscopes) {
+                const geoscopeId = geoscopeNameToId.get(geoscopeName);
+                const geoscopeGroupIds = geoscopeIdToGroupIds.get(geoscopeId) || new Set();
+                geoscopeGroupIds.add(group.airtableId);
+                geoscopeIdToGroupIds.set(geoscopeId, geoscopeGroupIds);
+            }
+        }
+
+        // Delete existing many-to-many relationships between geoscopes and groups.
+        this.deleteGeoscopeGroups.run();
+
+        // Add many-to-many relationships between geoscopes and groups.
+        for (const [geoscopeId, groupIds] of geoscopeIdToGroupIds.entries()) {
+            const pairs = [...groupIds].map(groupId => [geoscopeId, groupId]);
+            this.db.prepare(INSERT_GEOSCOPEGROUPS_STATEMENT_TEMPLATE(pairs)).run(pairs.flat());
         }
     }
 
@@ -237,18 +336,29 @@ class Database {
     }
 
     allGroupsInBoro(boroName) {
-        // TODO
-        return [];
-        // return this.selectAllGroupsInBoroQuery.all(boroName);
+        return this.selectAllGroupsInBoroQuery.all(boroName);
     }
 
     allNonlocalGroups() {
-        // TODO:
-        return {
-            groupsInNyc: [],
-            groupsInNys: [],
-            nationalGroups: [],
+        const groups = {
+            'New York City': [],
+            'New York State': [],
+            'National': [],
+            'Global': [],
         };
+
+        const geoscopeNames = Object.keys(groups);
+        const records = this.db.prepare(SELECT_ALL_GROUPS_IN_GEOSCOPES_STATEMENT_TEMPLATE(geoscopeNames)).all(geoscopeNames);
+
+        // Place groups in buckets by geoscope name.
+        records.reduce((memo, group) => {
+            const geoscopeName = group.geoscopeName;
+            delete group.geoscopeName;
+            memo[geoscopeName].push(group);
+            return memo;
+        }, groups);
+
+        return groups;
     }
 
     allNeighborhoods() {

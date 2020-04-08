@@ -11,10 +11,7 @@ class Store {
         this.groupsByBoroName = {};
 
         // Nonlocal groups data.
-        this.nonlocalGroupsFetched = false;
-        this.groupsInNyc = [];
-        this.groupsInNys = [];
-        this.nationalGroups = [];
+        this.nonlocalGroups = null;
     }
 
     async fetchData() {
@@ -39,10 +36,9 @@ class Store {
             const [localGroupsResponse] = await Promise.all([
                 fetch(`/data/neighborhoods/${neighborhoodId}/groups`),
                 // Lazy-load all nonlocal groups as well.
-                this._fetchNonlocalGroups()
-            ])
-            const json = await localGroupsResponse.json();
-            const groups = json.map(this._transformFetchedGroup);
+                this.fetchNonlocalGroups()
+            ]);
+            const groups = await localGroupsResponse.json();
 
             this.groupsByNeighborhoodId[neighborhoodId] = groups;
         }
@@ -53,11 +49,21 @@ class Store {
     async fetchGroupsByBoroName(boroName) {
         if (this.groupsByBoroName[boroName] == null) {
             const response = await fetch(`/data/groups?boroName=${boroName}`);
-            const json = await response.json();
-            this.groupsByBoroName[boroName] = json.map(this._transformFetchedGroup);
+            const groups = await response.json();
+            this.groupsByBoroName[boroName] = groups;
         }
 
         return this.groupsByBoroName[boroName];
+    }
+
+    async fetchNonlocalGroups() {
+        if (this.nonlocalGroups == null) {
+            const response = await fetch(`/data/groups?nonlocal=true`);
+            const nonlocalGroups = await response.json();
+            this.nonlocalGroups = nonlocalGroups;
+        }
+
+        return this.nonlocalGroups;
     }
 
     allNeighborhoods() {
@@ -88,43 +94,6 @@ class Store {
         const response = await fetch('/data/neighborhoods');
         const neighborhoods = await response.json();
         return neighborhoods;
-    }
-
-    async _fetchNonlocalGroups() {
-        if (!this.nonlocalGroupsFetched) {
-            const response = await fetch(`/data/groups?nonlocal=true`);
-            const json = await response.json();
-
-            const {
-                groupsInNyc,
-                groupsInNys,
-                nationalGroups,
-            } = json;
-
-            this.groupsInNyc = groupsInNyc.map(this._transformFetchedGroup);
-            this.groupsInNyc = groupsInNys.map(this._transformFetchedGroup);
-            this.nationalGroups = nationalGroups.map(this._transformFetchedGroup);
-            this.nonlocalGroupsFetched = true;
-        }
-
-        const {
-            groupsInNyc,
-            groupsInNys,
-            nationalGroups,
-        } = this;
-
-        return {
-            groupsInNyc,
-            groupsInNys,
-            nationalGroups,
-        };
-    }
-
-    _transformFetchedGroup(group) {
-        return Object.assign({}, group, {
-            // Array of strings
-            geoScope: JSON.parse(group.geoScope),
-        });
     }
 
     async _fetchGeodata() {

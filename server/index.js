@@ -54,9 +54,9 @@ app.get('/mapbox-access-token', (req, res) => {
 });
 
 app.get('/data/groups', (req, res) => {
-    if (req.query.nonlocal === "true") {
+    if (req.query.nonlocal === 'true') {
         res.json(database.allNonlocalGroups());
-    } else if (req.query.boroName) {
+    } else if (typeof req.query.boroName === 'string') {
         res.json(database.allGroupsInBoro(req.query.boroName));
     } else {
         res.json(database.allGroups());
