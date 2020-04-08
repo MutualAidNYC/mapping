@@ -5,11 +5,11 @@ import sqlite3 from 'better-sqlite3';
 
 const whereIn = (strings) => (array) => {
     const statement = [...strings];
-    const endingParenthesis = statement.pop();
+    const statementEnd = statement.pop();
     return [
         ...statement,
         array.map(() => "?").join(','),
-        endingParenthesis
+        statementEnd
     ]
     .join('')
     .trim();
@@ -17,11 +17,11 @@ const whereIn = (strings) => (array) => {
 
 const insertMany = (strings, columnCount) => (tuples) => {
     const statement = [...strings];
-    const endingSemicolon = statement.pop();
+    const statementEnd = statement.pop();
     return [
         ...statement,
         tuples.map(() => `(${'?'.repeat(columnCount).split('').join(',')})`).join(','),
-        endingSemicolon
+        statementEnd
     ]
     .join('')
     .trim();
@@ -204,25 +204,25 @@ class Database {
     }
 
     rebuildNeighborhoodGroups(groups) {
-        const neighborhoodIdsToGroups = new Map();
+        const neighborhoodIdToGroupIds = new Map();
         for (const group of groups) {
             for (const neighborhoodId of group.neighborhoods) {
-                const neighborhoodGroupIds = neighborhoodIdsToGroups.get(neighborhoodId) || new Set();
+                const neighborhoodGroupIds = neighborhoodIdToGroupIds.get(neighborhoodId) || new Set();
                 neighborhoodGroupIds.add(group.airtableId);
-                neighborhoodIdsToGroups.set(neighborhoodId, neighborhoodGroupIds);
+                neighborhoodIdToGroupIds.set(neighborhoodId, neighborhoodGroupIds);
             }
         }
 
         // Set `hasLocalGroups` on neighborhoods table,
         // for neighborhoods that have local groups.
-        const neighborhoodIds = [...neighborhoodIdsToGroups.keys()];
+        const neighborhoodIds = [...neighborhoodIdToGroupIds.keys()];
         this.db.prepare(FLAG_NEIGHBORHOODS_WITH_LOCAL_GROUPS_STATEMENT_TEMPLATE(neighborhoodIds)).run(neighborhoodIds);
 
         // Delete existing many-to-many relationships between neighborhoods and groups.
         this.deleteNeighborhoodGroups.run();
 
         // Add many-to-many relationships between neighborhoods and groups.
-        for (const [neighborhoodId, groupIds] of neighborhoodIdsToGroups.entries()) {
+        for (const [neighborhoodId, groupIds] of neighborhoodIdToGroupIds.entries()) {
             const pairs = [...groupIds].map(groupId => [neighborhoodId, groupId]);
             this.db.prepare(INSERT_NEIGHBORHOODGROUPS_STATEMENT_TEMPLATE(pairs)).run(pairs.flat());
         }
