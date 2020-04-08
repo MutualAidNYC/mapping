@@ -17,5 +17,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     const map = new NeighborhoodMap({ mapId: '#map', fillOpacity });
 
     await Promise.all([map.load(), store.fetchData()]);
-    await map.configure(store, generatePopupHtml);
+    map.configure(store, generatePopupHtml);
 });

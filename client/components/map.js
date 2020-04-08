@@ -1,6 +1,6 @@
 import mapboxgl, { Map, NavigationControl, Popup } from 'mapbox-gl';
 
-import './map.scss';
+import style from './map.scss';
 
 
 class NeighborhoodMap {
@@ -9,6 +9,11 @@ class NeighborhoodMap {
         this.mapId = mapId;
         this.fillOpacity = fillOpacity;
         this.map = null;
+        this.hoverPopup = new Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
+        this.hoverPopup.addClassName('neighborhood-name-popup');
     }
 
     async load() {
@@ -34,53 +39,76 @@ class NeighborhoodMap {
         });
     }
 
-    async configure(store, generatePopupHtml) {
-        const sourceIds = {
-            borders: 'nta-borders',
+    configure(store, generatePopupHtml) {
+        const areaIds = {
+            allNeighborhoods: 'nta-all-neighborhoods',
             neighborhoodsWithLocalGroups: 'nta-neighborhoods-with-local-groups',
-            neighborhoodsWithoutLocalGroups: 'nta-unserviced-neighborhoods',
+            neighborhoodsWithoutLocalGroups: 'nta-neighborhoods-without-local-groups',
         };
 
-        this.map.addSource(sourceIds.borders, {
+        this.addSources(areaIds, store);
+        this.addLayers(areaIds);
+        this.addEventHandlers(areaIds, store, generatePopupHtml);
+    }
+
+    addSources(areaIds, store) {
+        // Source: All Neighborhoods.
+        this.map.addSource(areaIds.allNeighborhoods, {
             type: 'geojson',
             data: store.allNeighborhoods(),
         });
 
-        this.map.addSource(sourceIds.neighborhoodsWithLocalGroups, {
+        // Source: Neighborhoods with local groups.
+        this.map.addSource(areaIds.neighborhoodsWithLocalGroups, {
             type: 'geojson',
             data: store.neighborhoodsWithLocalGroups(),
         });
 
-        this.map.addSource(sourceIds.neighborhoodsWithoutLocalGroups, {
+        // Source: Neighborhoods without local groups.
+        this.map.addSource(areaIds.neighborhoodsWithoutLocalGroups, {
             type: 'geojson',
             data: store.neighborhoodsWithoutLocalGroups(),
         });
+    }
 
+    addLayers(areaIds) {
+        // Layer: All Neighborhoods.
         this.map.addLayer({
-            id: sourceIds.neighborhoodsWithoutLocalGroups,
+            id: areaIds.allNeighborhoods,
             type: 'fill',
-            source: sourceIds.neighborhoodsWithoutLocalGroups,
+            source: areaIds.allNeighborhoods,
             paint: {
-                'fill-color': '#59A6E5',
-                'fill-opacity': this.fillOpacity,
+                'fill-opacity': 0,
             }
         });
 
+        // Layer: Neighborhoods with local groups.
         this.map.addLayer({
-            id: sourceIds.neighborhoodsWithLocalGroups,
+            id: areaIds.neighborhoodsWithLocalGroups,
             type: 'fill',
-            source: sourceIds.neighborhoodsWithLocalGroups,
+            source: areaIds.neighborhoodsWithLocalGroups,
             paint: {
                 'fill-color': '#43C59E',
                 'fill-opacity': this.fillOpacity,
             }
         });
 
-        // Neighborhood Borderlines Layer.
+        // Layer: Neighborhoods without local groups.
         this.map.addLayer({
-            id: sourceIds.borders,
+            id: areaIds.neighborhoodsWithoutLocalGroups,
+            type: 'fill',
+            source: areaIds.neighborhoodsWithoutLocalGroups,
+            paint: {
+                'fill-color': '#59A6E5',
+                'fill-opacity': this.fillOpacity,
+            }
+        });
+
+        // Layer: All Neighborhoods, borderlines only.
+        this.map.addLayer({
+            id: 'nta-borders',
             type: 'line',
-            source: sourceIds.borders,
+            source: areaIds.allNeighborhoods,
             layout: {
                 'line-join': 'round',
                 'line-cap': 'round'
@@ -90,56 +118,66 @@ class NeighborhoodMap {
                 'line-width': 2,
             }
         });
-
-        const handleClick = async (event) => {
-            const {
-                ntacode: ntaCode,
-                boro_name: boroName,
-            } = event.features[0].properties;
-
-            const neighborhood = store.neighborhoodByNtaCode(ntaCode);
-            const [localGroups, boroGroups, nonlocalGroups] = await Promise.all([
-                store.fetchGroupsInNeighborhood(ntaCode),
-                store.fetchGroupsByBoroName(boroName),
-                store.fetchNonlocalGroups()
-            ]);
-
-            const description = generatePopupHtml({
-                neighborhoodName: neighborhood.name,
-                localGroups,
-                boroGroups,
-                nonlocalGroups,
-            });
-
-            new Popup()
-                .setMaxWidth('')
-                .setLngLat(event.lngLat)
-                .setHTML(description)
-                .addTo(this.map);
-        }
-
-        const handleMouseEnter = () => {
-            this.map.getCanvas().style.cursor = 'pointer';
-        };
-
-        const handleMouseLeave = () => {
-            this.map.getCanvas().style.cursor = '';
-        };
-
-        // When a click event occurs on a feature in the layer, open a popup at the
-        // location of the feature, with description HTML from its properties.
-        this.map.on('click', sourceIds.neighborhoodsWithoutLocalGroups, handleClick);
-        this.map.on('click', sourceIds.neighborhoodsWithLocalGroups, handleClick);
-
-        // Change the cursor to normal when the mouse leaves the layer.
-        this.map.on('mouseleave', sourceIds.neighborhoodsWithoutLocalGroups, handleMouseLeave);
-        this.map.on('mouseleave', sourceIds.neighborhoodsWithLocalGroups, handleMouseLeave);
-
-        // Change the cursor to a pointer when the mouse is over the layer.
-        this.map.on('mouseenter', sourceIds.neighborhoodsWithoutLocalGroups, handleMouseEnter);
-        this.map.on('mouseenter', sourceIds.neighborhoodsWithLocalGroups, handleMouseEnter);
     }
 
+    addEventHandlers(areaIds, store, generatePopupHtml) {
+        // When a click event occurs on a feature in the layer, open a popup at the
+        // location of the feature, with description HTML from its properties.
+        this.map.on('click', areaIds.allNeighborhoods, this.showGroupsPopup.bind(this, store, generatePopupHtml));
+
+        this.map.on('mouseenter', areaIds.allNeighborhoods, () => this.startCursorPointer());
+        this.map.on('mousemove', areaIds.allNeighborhoods, (event) => this.showHoverPopup(store, event));
+        this.map.on('mouseleave', areaIds.allNeighborhoods, () => {
+            this.stopCursorPointer();
+            this.hideHoverPopup();
+        });
+    }
+
+    startCursorPointer() {
+        this.map.getCanvas().style.cursor = 'pointer';
+    }
+
+    stopCursorPointer() {
+        this.map.getCanvas().style.cursor = '';
+    }
+
+    showHoverPopup(store, event) {
+        const { ntacode } = event.features[0].properties;
+        const neighborhood = store.neighborhoodByNtaCode(ntacode);
+        this.hoverPopup
+            .setMaxWidth('')
+            .setLngLat(event.lngLat)
+            .setHTML(`<h2 class=${style.hoverPopupTitle}>${neighborhood.name}</h2>`)
+            .addTo(this.map);
+    }
+
+    hideHoverPopup() {
+        this.hoverPopup.remove();
+    }
+
+    async showGroupsPopup(store, generatePopupHtml, event) {
+        const { ntacode, boro_name } = event.features[0].properties;
+        const neighborhood = store.neighborhoodByNtaCode(ntacode);
+        const [localGroups, boroGroups, nonlocalGroups] = await Promise.all([
+            store.fetchGroupsInNeighborhood(ntacode),
+            store.fetchGroupsByBoroName(boro_name),
+            store.fetchNonlocalGroups()
+        ]);
+
+        const description = generatePopupHtml({
+            neighborhoodName: neighborhood.name,
+            localGroups,
+            boroGroups,
+            nonlocalGroups,
+        });
+
+        new Popup()
+            .setMaxWidth('')
+            .setLngLat(event.lngLat)
+            .setHTML(description)
+            .addTo(this.map)
+            .addClassName('groups-popup')
+    }
 }
 
 export default NeighborhoodMap;

@@ -5,7 +5,7 @@
     width: 100%;
 }
 
-:global(.mapboxgl-popup) {
+:global(.groups-popup) {
     max-width: 80%;
     height: 60%;
 
@@ -20,6 +20,10 @@
     }
 }
 
-:global(.mapboxgl-popup-content) {
+:global(.groups-popup .mapboxgl-popup-content) {
     height: 100%;
+}
+
+.hoverPopupTitle {
+    margin: 0;
 }
