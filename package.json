@@ -27,6 +27,7 @@
     "core-js": "^3.6.4",
     "dompurify": "^2.0.8",
     "dotenv": "^8.2.0",
+    "express-static-gzip": "^2.0.6",
     "html-minifier": "^4.0.0",
     "jsdom": "^16.2.1",
     "mapbox-gl": "^1.9.1",
