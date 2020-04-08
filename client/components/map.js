@@ -19,7 +19,7 @@ class NeighborhoodMap {
         await new Promise((resolve) => {
             const map = new Map({
                 container: this.mapId.replace(/^#/, ''),
-                style: 'mapbox://styles/mapbox/light-v10',
+                style: 'mapbox://styles/zhik/ck8qodz8f0evq1jov7219jotc',
                 center: [-74.005, 40.705],
                 zoom: 9.9,
                 scrollZoom: false,
@@ -61,7 +61,7 @@ class NeighborhoodMap {
             type: 'fill',
             source: sourceIds.neighborhoodsWithoutLocalGroups,
             paint: {
-                'fill-color': '#59A6E5',
+                'fill-color': '#ACAFAA',
                 'fill-opacity': this.fillOpacity,
             }
         });
@@ -71,7 +71,7 @@ class NeighborhoodMap {
             type: 'fill',
             source: sourceIds.neighborhoodsWithLocalGroups,
             paint: {
-                'fill-color': '#43C59E',
+                'fill-color': '#ce2660',
                 'fill-opacity': this.fillOpacity,
             }
         });
@@ -86,8 +86,9 @@ class NeighborhoodMap {
                 'line-cap': 'round'
             },
             paint: {
-                'line-color': 'rgba(0,0,0,0.4)',
-                'line-width': 2,
+                'line-color': 'rgba(100,100,100,0.7)',
+                'line-width': 1,
+                "line-dasharray": [2, 2]
             }
         });
 
