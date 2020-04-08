@@ -1,7 +1,13 @@
 .group {
-    padding: 4px;
-    border: 1px solid #DDD;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid rgba(211, 202, 202, 0.5);
+    color: rgb(48, 48, 48);
+    border-radius: 4px;
     margin-bottom: 5px;
+}
+
+.group:hover{
+    background-color: #dfd9cb;
 }
 
 .name {

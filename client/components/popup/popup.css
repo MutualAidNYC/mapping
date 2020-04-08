@@ -1,7 +1,9 @@
 .popup {
-    margin: 0;
+    margin: 0.5rem 0.5rem;
+    padding-right: 1rem;
     height: 100%;
-    overflow: scroll;
+    overflow-y: scroll;
+    font-family:Garamond, Georgia, serif;
 }
 
 .title {
@@ -20,5 +22,5 @@
 }
 
 .sectionTitleWithLocalGroups {
-    color: #43C59E; /* green */
+    color: rgb(51, 138, 112); /* green */
 }
