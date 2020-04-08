@@ -16,11 +16,11 @@ function generateGroupHtml(group) {
         if (website.indexOf('http') < 0) {
             websiteHref = `http://${website}`;
         }
-        nameHtml = [
-            `<a class="${style.website}" href="${websiteHref}" target="_blank">`,
-                name,
-            '</a>'
-        ].join('');
+        nameHtml = `
+            <a class="${style.website}" href="${websiteHref}" target="_blank">
+                ${name}
+            </a>
+        `;
     }
 
     let phoneHref = phone.replace(/[()-\s.]/g, '');
