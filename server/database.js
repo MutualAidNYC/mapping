@@ -208,11 +208,12 @@ class Database {
         this.selectAllGroupsInNeighborhoodQuery = this.db.prepare(SELECT_ALL_GROUPS_IN_NEIGHBORHOOD_STATEMENT);
         this.selectAllGroupsInBoroQuery = this.db.prepare(SELECT_ALL_GROUPS_IN_BORO_STATEMENT);
         this.upsertGroupQuery = this.db.prepare(UPSERT_GROUP_STATEMENT);
+        this.deleteGroupsQuery = this.db.prepare('DELETE FROM groups;');
 
         this.selectAllGeoscopesQuery = this.db.prepare('SELECT * FROM geoscopes;');
 
-        this.deleteGeoscopeGroups = this.db.prepare('DELETE FROM geoscope_groups');
-        this.deleteNeighborhoodGroups = this.db.prepare('DELETE FROM neighborhood_groups');
+        this.deleteGeoscopeGroupsQuery = this.db.prepare('DELETE FROM geoscope_groups');
+        this.deleteNeighborhoodGroupsQuery = this.db.prepare('DELETE FROM neighborhood_groups');
 
         this.updateData = this.db.transaction(({ neighborhoods, groups }) => {
             this.updateNeighborhoods(neighborhoods);
@@ -259,6 +260,12 @@ class Database {
     }
 
     updateGroups(groups) {
+        // FIXME: Airtable sometimes changes the IDs of records,
+        //        resulting in us storing duplicates when syncing.
+        //        Delete all groups first to prevent this from happening.
+        //        This nullifies the benefits of our UPSERT query.
+        this.deleteGroupsQuery.run();
+
         for (const group of groups) {
             this.upsertGroupQuery.run(group);
         }
@@ -293,7 +300,7 @@ class Database {
         }
 
         // Delete existing many-to-many relationships between geoscopes and groups.
-        this.deleteGeoscopeGroups.run();
+        this.deleteGeoscopeGroupsQuery.run();
 
         // Add many-to-many relationships between geoscopes and groups.
         for (const [geoscopeId, groupIds] of geoscopeIdToGroupIds.entries()) {
@@ -318,7 +325,7 @@ class Database {
         this.db.prepare(FLAG_NEIGHBORHOODS_WITH_LOCAL_GROUPS_STATEMENT_TEMPLATE(neighborhoodIds)).run(neighborhoodIds);
 
         // Delete existing many-to-many relationships between neighborhoods and groups.
-        this.deleteNeighborhoodGroups.run();
+        this.deleteNeighborhoodGroupsQuery.run();
 
         // Add many-to-many relationships between neighborhoods and groups.
         for (const [neighborhoodId, groupIds] of neighborhoodIdToGroupIds.entries()) {
