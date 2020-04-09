@@ -21,7 +21,7 @@ class NeighborhoodMap {
         const token = await response.text();
         mapboxgl.accessToken = token;
 
-        await new Promise((resolve) => {
+        const map = await new Promise((resolve) => {
             const map = new Map({
                 container: this.mapId.replace(/^#/, ''),
                 style: 'mapbox://styles/mapbox/light-v10',
@@ -31,12 +31,10 @@ class NeighborhoodMap {
             });
 
             map.addControl(new NavigationControl());
-
-            map.on('load', () => {
-                this.map = map;
-                resolve(map);
-            });
+            map.on('load', () => resolve(map));
         });
+
+        this.map = map;
     }
 
     configure(store, generatePopupHtml) {
