@@ -10,6 +10,9 @@ const isDev = process.env.NODE_ENV === 'development';
 const getPlugins = () => {
   // Common
   const plugins = [
+    new webpack.DefinePlugin({
+      BASEURL: isDev ? '"http://localhost:8000"' : `"${process.env.HOST}"`,
+    }),
     new ManifestPlugin({
       fileName: path.resolve(process.cwd(), 'dist/webpack-assets.json'),
       filter: (file) => file.isInitial,

@@ -1,6 +1,8 @@
 class Store {
 
-    constructor() {
+    constructor(baseUrl) {
+        this.baseUrl = baseUrl;
+
         // The NYC Open Data Neighborhood GeoJSON.
         this.geodata = null;
 
@@ -15,6 +17,10 @@ class Store {
 
         // Nonlocal groups data.
         this.nonlocalGroups = null;
+    }
+
+    async fetch(path) {
+        return fetch(`${this.baseUrl}${path}`);
     }
 
     async fetchData() {
@@ -36,7 +42,7 @@ class Store {
         const neighborhoodId = neighborhood.airtableId;
 
         if (this.groupsByNeighborhoodId[neighborhoodId] == null) {
-            const response = await fetch(`/data/neighborhoods/${neighborhoodId}/groups`);
+            const response = await this.fetch(`/data/neighborhoods/${neighborhoodId}/groups`);
             const groups = await response.json();
 
             this.groupsByNeighborhoodId[neighborhoodId] = groups;
@@ -47,7 +53,7 @@ class Store {
 
     async fetchGroupsByBoroName(boroName) {
         if (this.groupsByBoroName[boroName] == null) {
-            const response = await fetch(`/data/groups?boroName=${boroName}`);
+            const response = await this.fetch(`/data/groups?boroName=${boroName}`);
             const groups = await response.json();
             this.groupsByBoroName[boroName] = groups;
         }
@@ -57,7 +63,7 @@ class Store {
 
     async fetchNonlocalGroups() {
         if (this.nonlocalGroups == null) {
-            const response = await fetch(`/data/groups?nonlocal=true`);
+            const response = await this.fetch(`/data/groups?nonlocal=true`);
             const nonlocalGroups = await response.json();
             this.nonlocalGroups = nonlocalGroups;
         }
@@ -90,7 +96,7 @@ class Store {
     }
 
     async _fetchNeighborhoods() {
-        const response = await fetch('/data/neighborhoods');
+        const response = await this.fetch('/data/neighborhoods');
         const neighborhoods = await response.json();
         return neighborhoods;
     }
@@ -114,7 +120,7 @@ class Store {
         //     "coordinates": [...]
         //   }
         // }
-        const response = await fetch('/data/nta.geojson');
+        const response = await this.fetch('/data/nta.geojson');
         const geodata = await response.json();
         return geodata;
     }

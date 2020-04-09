@@ -13,9 +13,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         fillOpacity = 1;
     }
 
-    const store = new Store();
+    // Get the host from the webpack config;
+    // webpack interpolates the `BASEURL` value here.
+    const baseUrl = BASEURL; // eslint-disable-line
+
+    const store = new Store(baseUrl);
     const map = new NeighborhoodMap({ mapId: '#map', fillOpacity });
 
-    await Promise.all([map.load(), store.fetchData()]);
+    await Promise.all([map.load(baseUrl), store.fetchData()]);
     map.configure(store, generatePopupHtml);
 });

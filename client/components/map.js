@@ -16,8 +16,8 @@ class NeighborhoodMap {
         this.hoverPopup.addClassName('neighborhood-name-popup');
     }
 
-    async load() {
-        const response = await fetch('/mapbox-access-token');
+    async load(baseUrl) {
+        const response = await fetch(`${baseUrl}/mapbox-access-token`);
         const token = await response.text();
         mapboxgl.accessToken = token;
 
