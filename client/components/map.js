@@ -5,9 +5,8 @@ import style from './map.scss';
 
 class NeighborhoodMap {
 
-    constructor({ mapId, fillOpacity }) {
+    constructor({ mapId }) {
         this.mapId = mapId;
-        this.fillOpacity = fillOpacity;
         this.map = null;
         this.hoverPopup = new Popup({
             closeButton: false,
@@ -73,6 +72,8 @@ class NeighborhoodMap {
     }
 
     addLayers(areaIds) {
+        const fillOpacity = 0.4;
+
         // Layer: All Neighborhoods.
         this.map.addLayer({
             id: areaIds.allNeighborhoods,
@@ -90,7 +91,7 @@ class NeighborhoodMap {
             source: areaIds.neighborhoodsWithLocalGroups,
             paint: {
                 'fill-color': '#43C59E',
-                'fill-opacity': this.fillOpacity,
+                'fill-opacity': fillOpacity,
             }
         });
 
@@ -101,7 +102,7 @@ class NeighborhoodMap {
             source: areaIds.neighborhoodsWithoutLocalGroups,
             paint: {
                 'fill-color': '#59A6E5',
-                'fill-opacity': this.fillOpacity,
+                'fill-opacity': fillOpacity,
             }
         });
 
