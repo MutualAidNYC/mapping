@@ -9,11 +9,12 @@ class NeighborhoodMap {
         this.mapId = mapId;
         this.fillOpacity = fillOpacity;
         this.map = null;
-        this.isShowingGroupsPopup = false;
         this.hoverPopup = new Popup({
             closeButton: false,
             closeOnClick: false
         });
+        this.groupsPopup = new Popup()
+            .setMaxWidth('');
     }
 
     async load(baseUrl) {
@@ -142,7 +143,7 @@ class NeighborhoodMap {
     }
 
     showHoverPopup(store, event) {
-        if (this.isShowingGroupsPopup) {
+        if (this.groupsPopup.isOpen()) {
             return;
         }
 
@@ -150,7 +151,7 @@ class NeighborhoodMap {
         const neighborhood = store.neighborhoodByNtaCode(ntacode);
         this.hoverPopup
             .setMaxWidth('')
-            .setLngLat(event.lngLat)
+            .trackPointer()
             .setHTML(`<h2 class=${style.hoverPopupTitle}>${neighborhood.name}</h2>`)
             .addTo(this.map);
     }
@@ -177,15 +178,11 @@ class NeighborhoodMap {
             nonlocalGroups,
         });
 
-        const groupsPopup = new Popup()
-            .setMaxWidth('')
+        this.groupsPopup
             .setLngLat(event.lngLat)
             .setHTML(description)
-            .addTo(this.map);
-        groupsPopup.addClassName(style.groupsPopup);
-
-        this.isShowingGroupsPopup = true;
-        groupsPopup.on('close', () => this.isShowingGroupsPopup = false);
+            .addTo(this.map)
+            .addClassName(style.groupsPopup);
     }
 }
 
