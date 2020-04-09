@@ -107,7 +107,7 @@ module.exports = {
   plugins: getPlugins(),
   entry: getEntry(),
   output: {
-    filename: isDev ? 'main.js' : 'main.[hash].js',
+    filename: isDev ? 'main.js' : 'main.[contenthash:8].js',
     path: path.resolve(process.cwd(), 'dist'),
     publicPath: '/',
   },
