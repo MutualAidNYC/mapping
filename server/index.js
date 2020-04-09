@@ -34,7 +34,7 @@ const port = 8000;
 app.use('/', (req, res, next) => {
     const origin = req.headers.origin;
     const allowedOrigin = process.env.CORS_ALLOWED_ORIGIN;
-    if (typeof origin === 'string' && origin === allowedOrigin) {
+    if (typeof origin === 'string' && origin === allowedOrigin && allowedOrigin.length) {
         res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
     }
     next();
