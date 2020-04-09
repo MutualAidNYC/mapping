@@ -10,7 +10,7 @@
     outline: none;
 }
 
-:global(.groups-popup) {
+.groupsPopup {
     max-width: 80%;
     height: 60%;
     // Show above mapbox attribution and controls.
@@ -27,7 +27,7 @@
     }
 }
 
-:global(.groups-popup .mapboxgl-popup-content) {
+.groupsPopup :global(.mapboxgl-popup-content) {
     height: 100%;
 }
 

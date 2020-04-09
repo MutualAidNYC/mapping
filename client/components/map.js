@@ -9,11 +9,11 @@ class NeighborhoodMap {
         this.mapId = mapId;
         this.fillOpacity = fillOpacity;
         this.map = null;
+        this.isShowingGroupsPopup = false;
         this.hoverPopup = new Popup({
             closeButton: false,
             closeOnClick: false
         });
-        this.hoverPopup.addClassName('neighborhood-name-popup');
     }
 
     async load(baseUrl) {
@@ -142,6 +142,10 @@ class NeighborhoodMap {
     }
 
     showHoverPopup(store, event) {
+        if (this.isShowingGroupsPopup) {
+            return;
+        }
+
         const { ntacode } = event.features[0].properties;
         const neighborhood = store.neighborhoodByNtaCode(ntacode);
         this.hoverPopup
@@ -156,6 +160,8 @@ class NeighborhoodMap {
     }
 
     async showGroupsPopup(store, generatePopupHtml, event) {
+        this.hideHoverPopup();
+
         const { ntacode, boro_name } = event.features[0].properties;
         const neighborhood = store.neighborhoodByNtaCode(ntacode);
         const [localGroups, boroGroups, nonlocalGroups] = await Promise.all([
@@ -171,12 +177,15 @@ class NeighborhoodMap {
             nonlocalGroups,
         });
 
-        new Popup()
+        const groupsPopup = new Popup()
             .setMaxWidth('')
             .setLngLat(event.lngLat)
             .setHTML(description)
-            .addTo(this.map)
-            .addClassName('groups-popup')
+            .addTo(this.map);
+        groupsPopup.addClassName(style.groupsPopup);
+
+        this.isShowingGroupsPopup = true;
+        groupsPopup.on('close', () => this.isShowingGroupsPopup = false);
     }
 }
 
