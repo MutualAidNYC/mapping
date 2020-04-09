@@ -3,11 +3,18 @@
     top: 0;
     bottom: 0;
     width: 100%;
+    overflow: visible;
+}
+
+:global(.mapboxgl-canvas) {
+    outline: none;
 }
 
 :global(.groups-popup) {
     max-width: 80%;
     height: 60%;
+    // Show above mapbox attribution and controls.
+    z-index: 3;
 
     @media screen and (min-width: 768px) {
         max-width: 60%;
