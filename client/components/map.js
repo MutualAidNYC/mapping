@@ -8,10 +8,8 @@ class NeighborhoodMap {
     constructor({ mapId }) {
         this.mapId = mapId;
         this.map = null;
-        this.hoverPopup = new Popup({
-            closeButton: false,
-            closeOnClick: false
-        });
+        this.hoverPopup = new Popup({ closeButton: false, closeOnClick: false })
+            .setMaxWidth('');
         this.groupsPopup = new Popup()
             .setMaxWidth('');
     }
@@ -149,8 +147,7 @@ class NeighborhoodMap {
         const { ntacode } = event.features[0].properties;
         const neighborhood = store.neighborhoodByNtaCode(ntacode);
         this.hoverPopup
-            .setMaxWidth('')
-            .trackPointer()
+            .setLngLat(event.lngLat)
             .setHTML(`<h2 class=${style.hoverPopupTitle}>${neighborhood.name}</h2>`)
             .addTo(this.map);
     }
