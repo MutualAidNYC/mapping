@@ -9,7 +9,7 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
 import AirtableFetcher from './airtable-fetcher';
 import Database from './database';
 
-import webpackAssets from '../dist/webpack-assets';
+import webpackAssets from '../dist/bundled-assets';
 import renderHtml from './render-html';
 
 const isDev = process.env.NODE_ENV === 'development';

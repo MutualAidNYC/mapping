@@ -14,7 +14,7 @@ const getPlugins = () => {
       BASEURL: isDev ? '"http://localhost:8000"' : `"${process.env.HOST}"`,
     }),
     new ManifestPlugin({
-      fileName: path.resolve(process.cwd(), 'dist/webpack-assets.json'),
+      fileName: path.resolve(process.cwd(), 'dist/bundled-assets.json'),
       filter: (file) => file.isInitial,
     }),
     new ExtractCssChunks({
