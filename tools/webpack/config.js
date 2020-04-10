@@ -20,8 +20,7 @@ const getPlugins = () => {
       filter: (file) => file.isInitial,
     }),
     new ExtractCssChunks({
-      // Don't use hash in development, we need the persistent for "renderHtml.js"
-      filename: isDev ? '[name].css' : '[name].[contenthash:8].css',
+      filename: '[name].css',
       chunkFilename: isDev ? '[id].css' : '[id].[contenthash:8].css',
     }),
     new webpack.ProgressPlugin(),
@@ -107,7 +106,7 @@ module.exports = {
   plugins: getPlugins(),
   entry: getEntry(),
   output: {
-    filename: isDev ? 'main.js' : 'main.[contenthash:8].js',
+    filename: 'main.js',
     path: path.resolve(process.cwd(), 'dist'),
     publicPath: '/',
   },
