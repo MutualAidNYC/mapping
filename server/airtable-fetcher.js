@@ -59,7 +59,7 @@ class AirtableFetcher {
         console.log('Fetching Groups from Airtable');
 
         const groupsBase = await this.base('Groups').select({
-            view: "Published Groups",
+            view: "Published Groups - map data source",
         });
 
         const groups = [];
