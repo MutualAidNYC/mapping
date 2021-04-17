@@ -30,6 +30,11 @@ class NeighborhoodMap {
 
             map.addControl(new NavigationControl());
             map.on('load', () => resolve(map));
+            map.on('click', e => {
+                map.flyTo({
+                    center: e.lngLat
+                })
+            })
         });
 
         this.map = map;
