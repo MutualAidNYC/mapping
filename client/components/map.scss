@@ -11,24 +11,28 @@
 }
 
 .groupsPopup {
-    max-width: 80%;
+    max-width: 60%;
     height: 60%;
     // Show above mapbox attribution and controls.
     z-index: 3;
 
     @media screen and (min-width: 768px) {
-        max-width: 60%;
+        max-width: 40%;
         height: 400px;
     }
 
     @media screen and (min-width: 900px) {
-        max-width: 40%;
+        max-width: 20%;
         height: 500px;
     }
 }
 
 .groupsPopup :global(.mapboxgl-popup-content) {
     height: 100%;
+}
+
+:global(.mapboxgl-popup) {
+    transform: none !important;
 }
 
 .hoverPopupTitle {
